@@ -1,0 +1,8 @@
+{
+  "recommendations": [
+    "ms-dotnettools.csharp",
+    "streetsidesoftware.code-spell-checker",
+    "redhat.vscode-yaml",
+    "bierner.markdown-preview-github-styles"
+  ]
+}

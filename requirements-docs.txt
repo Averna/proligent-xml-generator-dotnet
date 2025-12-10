@@ -1,0 +1,5 @@
+mkdocs==1.6.1
+mkdocs-material==9.5.18
+mkdocstrings==0.25.1
+mkdocstrings-python==1.8.0
+mkdocstrings-csharp==0.3.0

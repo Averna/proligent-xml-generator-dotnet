@@ -1,0 +1,12 @@
+{
+  "editor.formatOnSave": true,
+  "dotnet.defaultSolution": "Proligent.XmlGenerator.sln",
+  "files.exclude": {
+    "**/bin": true,
+    "**/obj": true,
+    "build": true
+  },
+  "[csharp]": {
+    "editor.defaultFormatter": "ms-dotnettools.csharp"
+  }
+}
