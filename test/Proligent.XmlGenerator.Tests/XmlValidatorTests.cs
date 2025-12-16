@@ -1,6 +1,4 @@
-using System.IO;
 using System.Xml.Schema;
-using Proligent.XmlGenerator;
 using Xunit;
 
 namespace Proligent.XmlGenerator.Tests;

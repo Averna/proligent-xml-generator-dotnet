@@ -1,8 +1,5 @@
-using System;
-using System.IO;
 using System.Xml.Linq;
 using FluentAssertions;
-using Proligent.XmlGenerator;
 using Xunit;
 
 namespace Proligent.XmlGenerator.Tests;

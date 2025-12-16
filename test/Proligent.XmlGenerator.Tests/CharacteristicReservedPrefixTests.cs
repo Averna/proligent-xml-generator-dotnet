@@ -1,5 +1,3 @@
-using System;
-using Proligent.XmlGenerator;
 using Xunit;
 
 namespace Proligent.XmlGenerator.Tests;
