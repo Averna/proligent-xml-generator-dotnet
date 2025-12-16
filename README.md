@@ -1,9 +1,9 @@
-﻿# Proligentƒ,› XML Generator for .NET
+﻿# Proligentƒ™ XML Generator for .NET
 
-.NET library for generating Proligentƒ,› XML files. It provides a simple,
+.NET library for generating Proligent™ XML files. It provides a simple,
 structured API for building valid import files, reducing manual XML writing and
 ensuring consistent data formatting. These files are used to import data into
-[Proligentƒ,› Cloud][cloud] and [Proligentƒ,› Analytics][analytics].
+[Proligent™ Cloud][cloud] and [Proligent™ Analytics][analytics].
 
 [cloud]: https://www.averna.com/en/products/smart-data-management/proligent-cloud
 [analytics]: https://www.averna.com/en/products/proligent-analytics
@@ -139,8 +139,7 @@ warehouse.SaveXml(util: util);
 
 ## Trademarks
 
-Proligent is a registered trademark, and Averna is a trademark, of [Averna
-Technologies Inc.][web-site]
+Proligent is a registered trademark, and Averna is a trademark, of [Averna Technologies Inc.][web-site]
 
 [web-site]: https://www.averna.com
 

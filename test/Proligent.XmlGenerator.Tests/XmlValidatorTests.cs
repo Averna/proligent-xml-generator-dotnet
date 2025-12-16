@@ -13,21 +13,21 @@ public class XmlValidatorTests
     [Fact]
     public void ValidateXml_PassesForValidDocument()
     {
-        var path = Path.Combine(ExpectedDir, "Proligent_readme_example1.xml");
+        string path = Path.Combine(ExpectedDir, "Proligent_readme_example1.xml");
         XmlValidator.ValidateXml(path);
     }
 
     [Fact]
     public void ValidateXml_RaisesForInvalidDocument()
     {
-        var path = Path.Combine(ResourceDir, "invalid_product_unit_missing_full_name.xml");
+        string path = Path.Combine(ResourceDir, "invalid_product_unit_missing_full_name.xml");
         Assert.Throws<XmlSchemaValidationException>(() => XmlValidator.ValidateXml(path));
     }
 
     [Fact]
     public void ValidateXmlSafe_ReturnsMetadataForInvalidDocument()
     {
-        var path = Path.Combine(ResourceDir, "invalid_product_unit_missing_full_name.xml");
+        string path = Path.Combine(ResourceDir, "invalid_product_unit_missing_full_name.xml");
 
         var (isValid, metadata) = XmlValidator.ValidateXmlSafe(path);
 

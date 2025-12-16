@@ -10,7 +10,7 @@ public class OperationRunStationTests
     [Fact]
     public void SequenceRun_BuildRequiresStation()
     {
-        var sequence = new SequenceRun();
+        SequenceRun sequence = new SequenceRun();
         Assert.Throws<InvalidOperationException>(() => sequence.Build());
     }
 
@@ -23,8 +23,8 @@ public class OperationRunStationTests
     [Fact]
     public void OperationRun_StationPropagatesToSequences()
     {
-        var operation = new OperationRun("Station/Example");
-        var sequence = operation.AddSequenceRun(new SequenceRun());
+        OperationRun operation = new OperationRun("Station/Example");
+        SequenceRun sequence = operation.AddSequenceRun(new SequenceRun());
 
         var builtOperation = operation.Build();
 

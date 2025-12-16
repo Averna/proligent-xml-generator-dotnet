@@ -83,10 +83,10 @@ public static class XmlValidator
 
         settings.ValidationEventHandler += (_, args) =>
         {
-            var path = "/" + string.Join("/", elementStack.Reverse());
+            string path = "/" + string.Join("/", elementStack.Reverse());
             throw new XmlSchemaValidationException(args.Message, args.Exception, args.Exception?.LineNumber ?? 0, args.Exception?.LinePosition ?? 0)
             {
-                SourceUri = path,
+                //SourceUri = path, //TODO mari - check if the source uri is correct
             };
         };
 
@@ -169,7 +169,7 @@ public static class XmlValidator
         public override string GetAttribute(int i) => _inner.GetAttribute(i);
         public override string? GetAttribute(string name) => _inner.GetAttribute(name);
         public override string? GetAttribute(string name, string? namespaceURI) => _inner.GetAttribute(name, namespaceURI);
-        public override string LookupNamespace(string prefix) => _inner.LookupNamespace(prefix);
+        public override string? LookupNamespace(string prefix) => _inner.LookupNamespace(prefix);
         public override bool MoveToAttribute(string name) => _inner.MoveToAttribute(name);
         public override bool MoveToAttribute(string name, string? ns) => _inner.MoveToAttribute(name, ns);
         public override bool MoveToElement() => _inner.MoveToElement();

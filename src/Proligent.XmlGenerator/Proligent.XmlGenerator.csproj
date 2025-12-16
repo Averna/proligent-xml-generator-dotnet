@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
+    <TargetFrameworks>net8.0</TargetFrameworks>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -10,7 +10,7 @@
     <AssemblyName>Proligent.XmlGenerator</AssemblyName>
     <RootNamespace>Proligent.XmlGenerator</RootNamespace>
     <Version>1.0.0</Version>
-    <Authors>Ben Engelen;Kaitlin Van de Kerckhove;Philippe Gaclinas;Mathieu Balanger</Authors>
+    <Authors>Ben Engelen;Kaitlin Van de Kerckhove;Philippe Gaclinas;Mathieu Balanger;Marian Mindek</Authors>
     <Company>Averna</Company>
     <Product>Proligent XML Generator</Product>
     <Description>.NET library for generating Proligent XML payloads for Proligent Cloud and Analytics.</Description>
@@ -26,7 +26,6 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
-    <PackageReference Include="TimeZoneConverter" Version="6.2.0" />
   </ItemGroup>
 
   <ItemGroup>

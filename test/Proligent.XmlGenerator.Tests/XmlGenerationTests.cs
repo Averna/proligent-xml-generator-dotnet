@@ -12,18 +12,18 @@ public class XmlGenerationTests
     [Fact]
     public void ReadmeExample1_MatchesFixture()
     {
-        var tzUtil = new Util(timeZoneId: "Europe/Brussels");
-        var instant = new DateTime(2024, 1, 1, 12, 0, 0, DateTimeKind.Unspecified);
+        Util tzUtil = new Util(timeZoneId: "Europe/Brussels");
+        DateTime instant = new DateTime(2024, 1, 1, 12, 0, 0, DateTimeKind.Unspecified);
 
-        var limit = new Limit(LimitExpression.LOWERBOUND_LEQ_X_LE_HIGHER_BOUND, lowerBound: 10, higherBound: 25);
-        var measure = new Measure(
+        Limit limit = new Limit(LimitExpression.LOWERBOUND_LEQ_X_LE_HIGHER_BOUND, lowerBound: 10, higherBound: 25);
+        Measure measure = new Measure(
             value: 15,
             id: "00000000-0000-0000-0000-000000000001",
             limit: limit,
             time: instant,
             status: ExecutionStatusKind.PASS);
 
-        var step = new StepRun(
+        StepRun step = new StepRun(
             measure: measure,
             id: "00000000-0000-0000-0000-000000000002",
             name: "Step1",
@@ -31,7 +31,7 @@ public class XmlGenerationTests
             startTime: instant,
             endTime: instant);
 
-        var sequence = new SequenceRun(
+        SequenceRun sequence = new SequenceRun(
             steps: new[] { step },
             id: "00000000-0000-0000-0000-000000000003",
             name: "Sequence1",
@@ -39,7 +39,7 @@ public class XmlGenerationTests
             startTime: instant,
             endTime: instant);
 
-        var operation = new OperationRun(
+        OperationRun operation = new OperationRun(
             station: "Station/readme_example1",
             sequences: new[] { sequence },
             id: "00000000-0000-0000-0000-000000000004",
@@ -49,7 +49,7 @@ public class XmlGenerationTests
             startTime: instant,
             endTime: instant);
 
-        var process = new ProcessRun(
+        ProcessRun process = new ProcessRun(
             productUnitIdentifier: "DutSerialNumber",
             productFullName: "Product/readme_example1",
             operations: new[] { operation },
@@ -60,21 +60,21 @@ public class XmlGenerationTests
             startTime: instant,
             endTime: instant);
 
-        var product = new ProductUnit(
+        ProductUnit product = new ProductUnit(
             productUnitIdentifier: "DutSerialNumber",
             productFullName: "Product/readme_example1",
             manufacturer: "Averna");
 
-        var warehouse = new DataWareHouse(
+        DataWareHouse warehouse = new DataWareHouse(
             topProcess: process,
             productUnit: product,
             generationTime: instant,
             sourceFingerprint: "00000000-0000-0000-0000-000000000006");
 
-        var xml = warehouse.ToXml(tzUtil);
-        var generated = XDocument.Parse(xml);
-        var expectedPath = Path.Combine(AppContext.BaseDirectory, "Expected", "Proligent_readme_example1.xml");
-        var expected = XDocument.Load(expectedPath);
+        string xml = warehouse.ToXml(tzUtil);
+        XDocument generated = XDocument.Parse(xml);
+        string expectedPath = Path.Combine(AppContext.BaseDirectory, "Expected", "Proligent_readme_example1.xml");
+        XDocument expected = XDocument.Load(expectedPath);
 
         XNode.DeepEquals(generated, expected).Should().BeTrue("generated XML should match the fixture");
     }

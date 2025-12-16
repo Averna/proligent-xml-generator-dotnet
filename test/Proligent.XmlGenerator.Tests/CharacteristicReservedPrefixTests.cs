@@ -31,7 +31,7 @@ public class CharacteristicReservedPrefixTests
     [Fact]
     public void ProductUnit_AddCharacteristic_RejectsReservedPrefix()
     {
-        var productUnit = new ProductUnit();
+        ProductUnit productUnit = new ProductUnit();
         Assert.Throws<ArgumentException>(() =>
             productUnit.AddCharacteristic(new Characteristic("Proligent.Custom")));
     }

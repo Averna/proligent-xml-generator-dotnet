@@ -10,9 +10,9 @@ public class ManufacturingStepTests
     [Fact]
     public void Complete_WithoutEndTime_RefreshesTimestamp()
     {
-        var step = new StepRun();
-        var first = new DateTime(2024, 1, 1, 12, 0, 0);
-        var second = new DateTime(2024, 1, 1, 12, 0, 5);
+        StepRun step = new StepRun();
+        DateTime first = new DateTime(2024, 1, 1, 12, 0, 0);
+        DateTime second = new DateTime(2024, 1, 1, 12, 0, 5);
 
         step.Complete(ExecutionStatusKind.PASS, first);
         step.EndTime.Should().Be(first);

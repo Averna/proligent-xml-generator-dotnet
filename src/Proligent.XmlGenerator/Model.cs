@@ -1,12 +1,7 @@
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
-using System.Linq;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
-using TimeZoneConverter;
 
 namespace Proligent.XmlGenerator;
 
@@ -23,39 +18,100 @@ public static class XmlNamespaces
 /// <summary>Execution status values used across process, operation, sequence, step, and measure elements.</summary>
 public enum ExecutionStatusKind
 {
+    /// <summary>
+    /// The execution completed successfully.
+    /// </summary>
     PASS,
+
+    /// <summary>
+    /// The execution completed and failures were detected.
+    /// </summary>
     FAIL,
+
+    /// <summary>
+    /// The execution is not completed.  It is still in progress.  In that situation, the end time of the execution must be ommited.
+    /// </summary>
     NOT_COMPLETED,
-    ABORTED,
+
+    /// <summary>
+    /// The execution was aborted.
+    /// </summary>
+    ABORTED
 }
 
 /// <summary>Value types supported by the Measure element.</summary>
 public enum MeasureKind
 {
+    /// <summary>
+    /// Represents a real (floating-point) numeric value, typically used for continuous data.
+    /// </summary>
     REAL,
+
+    /// <summary>
+    /// Represents a logical Boolean value (True or False).
+    /// </summary>
     BOOL,
+
+    /// <summary>
+    /// Represents a whole number (integer) value.
+    /// </summary>
     INTEGER,
+
+    /// <summary>
+    /// Represents textual data or a sequence of characters.
+    /// </summary>
     STRING,
-    DATETIME,
+
+    /// <summary>
+    /// Represents a specific point in time, including both date and time components.
+    /// </summary>
+    DATETIME
 }
 
 /// <summary>Expressions describing how numeric limits should be interpreted.</summary>
 public enum LimitExpression
 {
+    /// <summary> Closed interval: LowerBound &lt;= x &lt;= HigherBound </summary>
     LOWERBOUND_LEQ_X_LEQ_HIGHER_BOUND,
+
+    /// <summary> Left-open interval: LowerBound &lt; x &lt;= HigherBound </summary>
     LOWERBOUND_LE_X_LEQ_HIGHER_BOUND,
+
+    /// <summary> Right-open interval: LowerBound &lt;= x &lt; HigherBound </summary>
     LOWERBOUND_LEQ_X_LE_HIGHER_BOUND,
+
+    /// <summary> Open interval: LowerBound &lt; x &lt; HigherBound </summary>
     LOWERBOUND_LE_X_LE_HIGHER_BOUND,
+
+    /// <summary> Greater than or equal to: LowerBound &lt;= x </summary>
     LOWERBOUND_LEQ_X,
+
+    /// <summary> Strictly greater than: LowerBound &lt; x </summary>
     LOWERBOUND_LE_X,
+
+    /// <summary> Less than or equal to: x &lt;= HigherBound </summary>
     X_LEQ_HIGHER_BOUND,
+
+    /// <summary> Strictly less than: x &lt; HigherBound </summary>
     X_LE_HIGHER_BOUND,
+
+    /// <summary> Equal to: x == HigherBound </summary>
     X_EQ_HIGHER_BOUND,
+
+    /// <summary> Not equal to: x != HigherBound </summary>
     X_NEQ_HIGHER_BOUND,
+
+    /// <summary> Outside closed interval: x &lt;= LowerBound OR HigherBound &lt;= x </summary>
     X_LEQ_LOWERBOUND_OR_HIGHERBOUND_LEQ_X,
+
+    /// <summary> Outside half-open interval: x &lt; LowerBound OR HigherBound &lt;= x </summary>
     X_LE_LOWERBOUND_or_HIGHERBOUND_LEQ_X,
+
+    /// <summary> Outside half-open interval: x &lt;= LowerBound OR HigherBound &lt; x </summary>
     X_LEQ_LOWERBOUND_or_HIGHERBOUND_LE_X,
-    X_LE_LOWERBOUND_or_HIGHERBOUND_LE_X,
+
+    /// <summary> Outside open interval: x &lt; LowerBound OR HigherBound &lt; x </summary>
+    X_LE_LOWERBOUND_or_HIGHERBOUND_LE_X
 }
 
 /// <summary>
@@ -92,13 +148,14 @@ public class Util
     /// <param name="timeZone">Optional time zone for naive DateTime inputs.</param>
     /// <param name="destinationDirectory">Optional default output directory for generated XML.</param>
     /// <param name="schemaPath">Optional path to a custom Datawarehouse XSD.</param>
+    /// <param name="timeZoneId">IANA/Windows TimeZone IDs.</param>
     public Util(
         TimeZoneInfo? timeZone = null,
         string? destinationDirectory = null,
         string? schemaPath = null,
         string? timeZoneId = null)
     {
-        TimeZone = timeZone ?? (timeZoneId is not null ? TZConvert.GetTimeZoneInfo(timeZoneId) : null);
+        TimeZone = timeZone ?? (timeZoneId is not null ? TimeZoneInfo.FindSystemTimeZoneById(timeZoneId) : null);
         DestinationDirectory = destinationDirectory ?? @"C:\Proligent\IntegrationService\Acquisition";
         _schemaPath = schemaPath ?? Path.Combine(AppContext.BaseDirectory, "Xsd", "Datawarehouse.xsd");
     }
@@ -142,7 +199,7 @@ public class Util
     public string Uuid() => UuidFactory();
 
     /// <summary>Set the timezone using an IANA or Windows identifier.</summary>
-    public void SetTimeZone(string timeZoneId) => TimeZone = TZConvert.GetTimeZoneInfo(timeZoneId);
+    public void SetTimeZone(string timeZoneId) => TimeZone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
 
     /// <summary>Validate an XML file against the Datawarehouse schema.</summary>
     public void ValidateXml(string xmlFile) => XmlValidator.ValidateXml(xmlFile, SchemaPath);
@@ -288,6 +345,7 @@ public sealed class Characteristic : Buildable
     /// <summary>Create a new characteristic.</summary>
     /// <param name="fullName">FullName attribute; must be unique per owning element.</param>
     /// <param name="value">Optional value attribute.</param>
+    /// <param name="allowReserved">Allow reserved name.</param>
     public Characteristic(string fullName, string? value = null, bool allowReserved = false)
     {
         FullName = fullName;
@@ -391,10 +449,10 @@ public abstract class ManufacturingStep : Buildable
     public ExecutionStatusKind Status { get; private set; }
 
     /// <summary>Start timestamp persisted to *_StartTime/StartDate.</summary>
-    public DateTime StartTime { get; set; }
+    public DateTime? StartTime { get; set; }
 
     /// <summary>Completion timestamp persisted to *_EndTime/EndDate.</summary>
-    public DateTime EndTime { get; private set; }
+    public DateTime? EndTime { get; private set; }
 
     /// <summary>
     /// Mark the step as finished and set the execution status and end time that will be serialized to the payload.
@@ -463,7 +521,7 @@ public sealed class Measure : Buildable
     public Limit? Limit { get; }
 
     /// <summary>Timestamp describing when the value was acquired.</summary>
-    public DateTime Time { get; }
+    public DateTime? Time { get; }
 
     /// <summary>Free-form note written to the Comments attribute.</summary>
     public string Comments { get; }
@@ -1114,12 +1172,12 @@ public sealed class ProductUnit : Buildable
 
         if (CreationTime.HasValue)
         {
-            productUnit.Add(new XAttribute("CreationTime", util.FormatDateTime(CreationTime.Value)));
+            productUnit.Add(new XAttribute("CreationTime", util.FormatDateTime(CreationTime)));
         }
 
         if (ManufacturingTime.HasValue)
         {
-            productUnit.Add(new XAttribute("ManufacturingTime", util.FormatDateTime(ManufacturingTime.Value)));
+            productUnit.Add(new XAttribute("ManufacturingTime", util.FormatDateTime(ManufacturingTime)));
         }
 
         if (Scrapped.HasValue)
@@ -1129,7 +1187,7 @@ public sealed class ProductUnit : Buildable
 
         if (ScrapTime.HasValue)
         {
-            productUnit.Add(new XAttribute("ScrappedTime", util.FormatDateTime(ScrapTime.Value)));
+            productUnit.Add(new XAttribute("ScrappedTime", util.FormatDateTime(ScrapTime)));
         }
 
         foreach (var characteristic in Characteristics)
@@ -1186,7 +1244,7 @@ public sealed class DataWareHouse : Buildable
     public ProductUnit? ProductUnit { get; private set; }
 
     /// <summary>Timestamp emitted as GenerationTime.</summary>
-    public DateTime GenerationTime { get; set; }
+    public DateTime? GenerationTime { get; set; }
 
     /// <summary>Identifier stored in DataSourceFingerprint to prevent replays.</summary>
     public string SourceFingerprint { get; set; }
