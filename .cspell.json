@@ -22,6 +22,8 @@
     ".vscode",
     "*.xml",
     "*.xsd",
+    "*.yml",
+    "*.csproj",
     "requirements.txt"
   ],
   // Custom project dictionary
@@ -41,6 +43,13 @@
     "setuptools",
     "sitecustomize",
     "testpypi",
-    "xsdata"
+    "xsdata",
+    "mkdocs",
+    "mkdocstrings",
+    "LOWERBOUND",
+    "HIGHERBOUND",
+    "sszzz",
+    "Xunit"
   ]
 }
+

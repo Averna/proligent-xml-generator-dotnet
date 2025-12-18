@@ -7,7 +7,7 @@ $repo = Resolve-Path "$root/.."
 $project = Join-Path $repo "src/Proligent.XmlGenerator/Proligent.XmlGenerator.csproj"
 $outputDir = Join-Path $repo "build/help"
 
-Write-Host "Building Proligent.XmlGenerator ($Configuration)..."
+Write-Output "Building Proligent.XmlGenerator ($Configuration)..."
 dotnet build $project -c $Configuration | Out-Default
 
 $docPath = Get-ChildItem -Path (Join-Path $repo "src/Proligent.XmlGenerator/bin/$Configuration") -Recurse -Filter "Proligent.XmlGenerator.xml" |
@@ -42,4 +42,5 @@ $html = @"
 "@
 
 Set-Content -Path (Join-Path $outputDir "proligent-xml-generator.html") -Value $html -Encoding UTF8
-Write-Host "Generated help docs in $outputDir"
+Write-Output "Generated help docs in $outputDir"
+

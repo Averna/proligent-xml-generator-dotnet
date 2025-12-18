@@ -27,7 +27,9 @@ public class OperationRunStationTests
 
         Assert.Equal("Station/Example", builtOperation.Attribute("StationFullName")?.Value);
         Assert.Equal("Station/Example", sequence.Station);
-        var sequenceElement = builtOperation.Elements().First(e => e.Name.LocalName == "SequenceRun");
+        var sequenceElement = builtOperation
+              .Elements().First(e => e.Name.LocalName == "SequenceRun");
         Assert.Equal("Station/Example", sequenceElement.Attribute("StationFullName")?.Value);
     }
 }
+

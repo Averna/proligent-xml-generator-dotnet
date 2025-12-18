@@ -1,6 +1,6 @@
-# Proligentƒ,› XML Generator for .NET
+# Proligent™ XML Generator for .NET
 
-Generate Proligentƒ,› Datawarehouse XML payloads from strongly typed C# models.
+Generate Proligent™ Datawarehouse XML payloads from strongly typed C# models.
 The library mirrors the Python `proligent-xml-generator` interface while
 following .NET conventions, bundling XSD validation and IntelliSense-ready XML
 documentation.
@@ -14,3 +14,4 @@ documentation.
 Get started with the [Quickstart](user/quickstart.md) or review the
 [Manufacturing Information Model](user/manufacturing-information-model.md) for
 data mapping guidance.
+

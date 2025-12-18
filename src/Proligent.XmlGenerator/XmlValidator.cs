@@ -10,7 +10,8 @@ public record ValidationFailureMetadata(
     string? Reason = null,
     string? Path = null,
     int? Line = null,
-    int? Column = null);
+    int? Column = null
+    );
 
 /// <summary>Validation helpers for Proligent Datawarehouse XML.</summary>
 public static class XmlValidator
@@ -177,3 +178,4 @@ public static class XmlValidator
         #endregion
     }
 }
+

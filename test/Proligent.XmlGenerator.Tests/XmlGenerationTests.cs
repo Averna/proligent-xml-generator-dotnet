@@ -12,7 +12,8 @@ public class XmlGenerationTests
         Util tzUtil = new Util(timeZoneId: "Europe/Brussels");
         DateTime instant = new DateTime(2024, 1, 1, 12, 0, 0, DateTimeKind.Unspecified);
 
-        Limit limit = new Limit(LimitExpression.LOWERBOUND_LEQ_X_LE_HIGHER_BOUND, lowerBound: 10, higherBound: 25);
+        Limit limit = new Limit(
+            LimitExpression.LOWERBOUND_LEQ_X_LE_HIGHER_BOUND, lowerBound: 10, higherBound: 25);
         Measure measure = new Measure(
             value: 15,
             id: "00000000-0000-0000-0000-000000000001",
@@ -76,3 +77,4 @@ public class XmlGenerationTests
         XNode.DeepEquals(generated, expected).Should().BeTrue("generated XML should match the fixture");
     }
 }
+

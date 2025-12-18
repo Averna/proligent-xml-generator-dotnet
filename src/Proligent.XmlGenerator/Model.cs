@@ -9,7 +9,8 @@ namespace Proligent.XmlGenerator;
 public static class XmlNamespaces
 {
     /// <summary>The Datawarehouse XML namespace.</summary>
-    public const string Datawarehouse = "http://www.averna.com/products/proligent/analytics/DIT/6.85";
+    public const string Datawarehouse = 
+        "http://www.averna.com/products/proligent/analytics/DIT/6.85";
 
     /// <summary>The <see cref="XNamespace" /> instance for the Datawarehouse schema.</summary>
     public static readonly XNamespace Dw = Datawarehouse;
@@ -29,7 +30,7 @@ public enum ExecutionStatusKind
     FAIL,
 
     /// <summary>
-    /// The execution is not completed.  It is still in progress.  In that situation, the end time of the execution must be ommited.
+    /// The execution is not completed.  It is still in progress.  In that situation, the end time of the execution must be omitted.
     /// </summary>
     NOT_COMPLETED,
 
@@ -1297,3 +1298,4 @@ internal static class CharacteristicHelpers
         }
     }
 }
+

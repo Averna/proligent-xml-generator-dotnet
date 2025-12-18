@@ -1,4 +1,4 @@
-﻿# Proligentƒ™ XML Generator for .NET
+﻿# Proligent™ XML Generator for .NET
 
 .NET library for generating Proligent™ XML files. It provides a simple,
 structured API for building valid import files, reducing manual XML writing and
@@ -145,3 +145,4 @@ Proligent is a registered trademark, and Averna is a trademark, of [Averna Techn
 
 Other product and company names mentioned herein are trademarks or trade names
 of their respective companies.
+
