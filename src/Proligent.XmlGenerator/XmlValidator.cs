@@ -4,15 +4,6 @@ using System.Xml.Schema;
 
 namespace Proligent.XmlGenerator;
 
-/// <summary>Metadata describing why XML schema validation failed.</summary>
-public record ValidationFailureMetadata(
-    string Message,
-    string? Reason = null,
-    string? Path = null,
-    int? Line = null,
-    int? Column = null
-    );
-
 /// <summary>Validation helpers for Proligent Datawarehouse XML.</summary>
 public static class XmlValidator
 {
@@ -38,7 +29,7 @@ public static class XmlValidator
     /// </summary>
     /// <param name="filePath">Path to the XML document to validate.</param>
     /// <param name="schemaPath">Optional override to the Datawarehouse XSD.</param>
-    public static (bool IsValid, ValidationFailureMetadata? Metadata) ValidateXmlSafe(string filePath, string? schemaPath = null)
+    public static ValidationMetadata ValidateXmlSafe(string filePath, string? schemaPath = null)
     {
         try
         {
@@ -46,23 +37,25 @@ public static class XmlValidator
         }
         catch (XmlSchemaValidationException ex)
         {
-            var metadata = new ValidationFailureMetadata(
+            var metadata = new ValidationMetadata(
+                IsValid: false,
                 Message: ex.Message,
                 Reason: ex.Message,
                 Path: ex.SourceUri ?? filePath,
                 Line: ex.LineNumber > 0 ? ex.LineNumber : null,
                 Column: ex.LinePosition > 0 ? ex.LinePosition : null);
-            return (false, metadata);
+            return (metadata);
         }
         catch (Exception ex)
         {
-            var metadata = new ValidationFailureMetadata(
+            var metadata = new ValidationMetadata(
+                IsValid: false,
                 Message: ex.Message,
                 Reason: ex.InnerException?.Message);
-            return (false, metadata);
+            return (metadata);
         }
-
-        return (true, null);
+        
+        return new ValidationMetadata(IsValid: true, Message: "Validation was successful.");
     }
 
     private static (XmlReaderSettings Settings, Func<string, XmlReaderSettings, XmlReader> Factory) CreateValidator(string? schemaPath)

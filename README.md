@@ -135,7 +135,6 @@ warehouse.SaveXml(util: util);
 ## Scripts and docs
 
 - `scripts/generate-help.ps1`: builds the project and emits IntelliSense XML + a lightweight HTML help snapshot.
-- `mkdocs.yml`: documentation site powered by mkdocs-material and mkdocstrings-csharp (published via GitHub Pages).
 
 ## Trademarks
 

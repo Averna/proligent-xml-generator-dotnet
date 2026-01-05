@@ -115,6 +115,16 @@ public enum LimitExpression
     X_LE_LOWERBOUND_or_HIGHERBOUND_LE_X
 }
 
+/// <summary>Metadata describing the result of XML schema validation.</summary>
+public record ValidationMetadata(
+    bool IsValid,
+    string Message,
+    string? Reason = null,
+    string? Path = null,
+    int? Line = null,
+    int? Column = null
+);
+
 /// <summary>
 /// Convenience helpers for building Datawarehouse payloads: time formatting,
 /// UUID generation, and XML validation.
@@ -208,7 +218,7 @@ public class Util
     /// <summary>
     /// Validate an XML file against the Datawarehouse schema returning metadata instead of throwing.
     /// </summary>
-    public (bool IsValid, ValidationFailureMetadata? Metadata) ValidateXmlSafe(string xmlFile) =>
+    public ValidationMetadata ValidateXmlSafe(string xmlFile) =>
         XmlValidator.ValidateXmlSafe(xmlFile, SchemaPath);
 
     private TimeZoneInfo ResolveTimeZone()
@@ -253,21 +263,33 @@ public abstract class Buildable
     }
 
     /// <summary>
-    /// Write the XML representation to disk. When <paramref name="destination" /> is omitted,
-    /// the output is written to <see cref="Util.DestinationDirectory" /> using a generated name.
+    /// Writes the XML representation to disk. When <paramref name="destinationFolder" />
+    /// is not provided, the output is written to <see cref="Util.DestinationDirectory" />.
+    /// When <paramref name="fileName" /> is not provided, the method generates a file name
+    /// in the format Proligent_{uuid}.xml.
     /// </summary>
-    /// <param name="destination">Optional destination file path.</param>
+    /// <param name="destinationFolder">Optional destination file path.</param>
+    /// <param name="fileName">Optional destination file name.</param>
     /// <param name="util">Optional utility instance to use for configuration.</param>
-    public virtual void SaveXml(string? destination = null, Util? util = null)
+    /// <returns>The resulting file path.</returns>
+    public virtual string SaveXml(string? destinationFolder=null, 
+        string? fileName = null, 
+        Util? util = null)
     {
         util ??= Util.Default;
-        var targetPath = string.IsNullOrWhiteSpace(destination)
-            ? Path.Combine(util.DestinationDirectory, $"Proligent_{util.Uuid()}.xml")
-            : destination!;
+        string uuid = util.Uuid();
+        var targetFileName = string.IsNullOrWhiteSpace(fileName)
+            ? $"Proligent_{uuid}.xml"
+            : fileName;
 
+        var targetPath = string.IsNullOrWhiteSpace(destinationFolder)
+            ? Path.Combine(util.DestinationDirectory, targetFileName)
+            : Path.Combine(destinationFolder, targetFileName);
+        
         Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(targetPath))!);
         var xml = ToXml(util);
         File.WriteAllText(targetPath, xml, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+        return targetPath;
     }
 
     private sealed class Utf8StringWriter : StringWriter

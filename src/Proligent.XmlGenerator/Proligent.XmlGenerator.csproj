@@ -11,7 +11,7 @@
     <RootNamespace>Proligent.XmlGenerator</RootNamespace>
     <Version>1.0.0</Version>
     <Authors>Ben Engelen;Kaitlin Van de Kerckhove;Philippe Gaclinas;Mathieu Balanger;Marian Mindek</Authors>
-    <Company>Averna</Company>
+    <Company>Averna Technologies Inc.</Company>
     <Product>Proligent XML Generator</Product>
     <Description>.NET library for generating Proligent XML payloads for Proligent Cloud and Analytics.</Description>
     <PackageLicenseExpression>BSD-3-Clause</PackageLicenseExpression>
@@ -22,6 +22,7 @@
     <PackageTags>averna;proligent;xml;generator;manufacturing</PackageTags>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
