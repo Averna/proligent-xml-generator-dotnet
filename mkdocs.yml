@@ -27,7 +27,6 @@ nav:
   - User Guide:
       - Quickstart: user/quickstart.md
       - Manufacturing Model: user/manufacturing-information-model.md
-  - API Reference: api.md
   - Developer Guide:
       - Guidelines: developer/developer-guidelines.md
       - Change validation: developer/change-validation.md

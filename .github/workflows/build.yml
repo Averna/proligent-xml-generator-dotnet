@@ -70,16 +70,3 @@ jobs:
           path: build/help
           if-no-files-found: warn
 
-      - name: Setup Python
-        if: matrix.dotnet-version == '8.0.x'
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Build docs (mkdocs)
-        if: matrix.dotnet-version == '8.0.x'
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements-docs.txt
-          mkdocs build
-
