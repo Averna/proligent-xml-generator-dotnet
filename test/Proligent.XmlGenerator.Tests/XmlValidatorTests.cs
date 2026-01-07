@@ -27,10 +27,10 @@ public class XmlValidatorTests
     {
         string path = Path.Combine(ResourceDir, "invalid_product_unit_missing_full_name.xml");
 
-        var (isValid, metadata) = XmlValidator.ValidateXmlSafe(path);
+        var metadata = XmlValidator.ValidateXmlSafe(path);
 
-        Assert.False(isValid);
         Assert.NotNull(metadata);
+        Assert.False(metadata.IsValid);
         Assert.Contains("ProductFullName", metadata!.Message);
         Assert.Contains("ProductUnit", metadata.Path ?? string.Empty);
     }

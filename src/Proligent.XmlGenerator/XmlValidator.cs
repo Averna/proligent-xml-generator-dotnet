@@ -65,7 +65,7 @@ public static class XmlValidator
         {
             Schemas = resolvedSchema,
             ValidationType = ValidationType.Schema,
-            ValidationFlags = XmlSchemaValidationFlags.ProcessSchemaLocation | XmlSchemaValidationFlags.ReportValidationWarnings,
+            ValidationFlags = XmlSchemaValidationFlags.ReportValidationWarnings, //XmlSchemaValidationFlags.ProcessSchemaLocation
         };
 
         // Track the current element path to improve error metadata.
