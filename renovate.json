@@ -5,7 +5,9 @@
     ":dependencyDashboard",
     ":semanticCommits"
   ],
-  "labels": ["dependencies"],
+  "labels": [
+    "dependencies"
+  ],
   "packageRules": [
     {
       "matchManagers": ["nuget"],
@@ -18,3 +20,4 @@
     }
   ]
 }
+

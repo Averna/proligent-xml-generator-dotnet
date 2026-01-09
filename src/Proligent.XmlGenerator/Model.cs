@@ -1320,4 +1320,3 @@ internal static class CharacteristicHelpers
         }
     }
 }
-

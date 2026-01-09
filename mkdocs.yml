@@ -1,3 +1,4 @@
+---
 site_name: Proligent XML Generator (.NET)
 site_description: .NET library for generating Proligent XML payloads.
 repo_url: https://github.com/Averna/proligent-xml-generator-dotnet
@@ -30,3 +31,4 @@ nav:
   - Developer Guide:
       - Guidelines: developer/developer-guidelines.md
       - Change validation: developer/change-validation.md
+

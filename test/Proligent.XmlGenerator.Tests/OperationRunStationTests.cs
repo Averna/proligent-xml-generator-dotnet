@@ -32,4 +32,3 @@ public class OperationRunStationTests
         Assert.Equal("Station/Example", sequenceElement.Attribute("StationFullName")?.Value);
     }
 }
-

@@ -10,11 +10,11 @@ on:
     branches:
       - main
   workflow_dispatch:
-      inputs:
-        branch:
-          description: 'Manual run'
-          required: true
-          default: 'main'      
+    inputs:
+      branch:
+        description: 'Manual run'
+        required: true
+        default: 'main'
 
 permissions:
   contents: read

@@ -8,7 +8,8 @@ public class CharacteristicReservedPrefixTests
     public void StepRun_Rejects_ReservedCharacteristic()
     {
         Assert.Throws<ArgumentException>(() =>
-            new StepRun(characteristics: new[] { new Characteristic("Proligent.Custom") }));
+            new StepRun(characteristics: new[] { new Characteristic("Proligent.Custom") })
+        );
     }
 
     [Fact]
@@ -16,14 +17,16 @@ public class CharacteristicReservedPrefixTests
     {
         var sequence = new SequenceRun();
         Assert.Throws<ArgumentException>(() =>
-            sequence.AddCharacteristic(new Characteristic("Proligent.Custom")));
+            sequence.AddCharacteristic(new Characteristic("Proligent.Custom"))
+            );
     }
 
     [Fact]
     public void OperationRun_RejectsReservedCharacteristic()
     {
         Assert.Throws<ArgumentException>(() =>
-            new OperationRun("Station/A", characteristics: new[] { new Characteristic("Proligent.Custom") }));
+            new OperationRun("Station/A", characteristics: new[] { new Characteristic("Proligent.Custom") })
+        );
     }
 
     [Fact]
@@ -31,6 +34,7 @@ public class CharacteristicReservedPrefixTests
     {
         ProductUnit productUnit = new ProductUnit();
         Assert.Throws<ArgumentException>(() =>
-            productUnit.AddCharacteristic(new Characteristic("Proligent.Custom")));
+            productUnit.AddCharacteristic(new Characteristic("Proligent.Custom"))
+            );
     }
 }

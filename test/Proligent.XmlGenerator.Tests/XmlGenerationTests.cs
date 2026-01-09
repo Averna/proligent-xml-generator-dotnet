@@ -77,4 +77,3 @@ public class XmlGenerationTests
         XNode.DeepEquals(generated, expected).Should().BeTrue("generated XML should match the fixture");
     }
 }
-
