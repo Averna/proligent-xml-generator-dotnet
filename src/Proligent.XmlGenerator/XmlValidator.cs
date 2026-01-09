@@ -65,7 +65,7 @@ public static class XmlValidator
         {
             Schemas = resolvedSchema,
             ValidationType = ValidationType.Schema,
-            ValidationFlags = XmlSchemaValidationFlags.ReportValidationWarnings, //XmlSchemaValidationFlags.ProcessSchemaLocation
+            ValidationFlags = XmlSchemaValidationFlags.ProcessSchemaLocation | XmlSchemaValidationFlags.ReportValidationWarnings
         };
 
         // Track the current element path to improve error metadata.
@@ -74,30 +74,48 @@ public static class XmlValidator
         settings.ValidationEventHandler += (_, args) =>
         {
             string path = "/" + string.Join("/", elementStack.Reverse());
-            throw new XmlSchemaValidationException(args.Message, args.Exception, args.Exception?.LineNumber ?? 0, args.Exception?.LinePosition ?? 0)
-            {
-                //SourceUri = path, //TODO mari - check if the source uri is correct
-            };
+            throw new XmlSchemaValidationException(args.Message, args.Exception, args.Exception?.LineNumber ?? 0, args.Exception?.LinePosition ?? 0);
         };
+
+        return (settings, ReaderFactory);
 
         XmlReader ReaderFactory(string path, XmlReaderSettings xmlReaderSettings)
         {
             var reader = XmlReader.Create(path, xmlReaderSettings);
             return new TrackingXmlReader(reader, elementStack);
         }
-
-        return (settings, ReaderFactory);
     }
 
     private static XmlSchemaSet ResolveSchema(string? schemaPath)
     {
-        var path = schemaPath ?? Path.Combine(AppContext.BaseDirectory, "Xsd", "Datawarehouse.xsd");
-        return SchemaCache.GetOrAdd(path, key =>
+        var path = schemaPath ?? Path.Combine(AppContext.BaseDirectory, "Xsd");
+
+        string[] xsdFiles = Directory.GetFiles(path, "*.xsd", SearchOption.AllDirectories);
+
+        if (xsdFiles.Length == 0)
         {
-            var set = new XmlSchemaSet();
-            set.Add(null, key);
-            return set;
-        });
+            throw new ApplicationException(
+                "No xsd found in resource folder " + path
+            );
+        }
+
+        var schemaSet = new XmlSchemaSet();
+
+        foreach (var xsd in xsdFiles)
+        {
+            using var stream = File.OpenRead(xsd);
+            var schema = XmlSchema.Read(stream, (sender, args) =>
+            {
+                //Here you can log which xsd were loaded.
+            });
+            if (schema != null)
+            {
+                schema.SourceUri = xsd;
+                schemaSet.Add(schema);
+            }
+        }
+
+        return schemaSet;
     }
 
     /// <summary>

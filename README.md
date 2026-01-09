@@ -115,7 +115,7 @@ using Proligent.XmlGenerator;
 XmlValidator.ValidateXml(@"C:\path_to\Proligent_file_name.xml");
 
 // Safe call returns metadata
-var (isValid, metadata) = XmlValidator.ValidateXmlSafe(@"C:\path_to\Proligent_file_name.xml");
+var metadata = XmlValidator.ValidateXmlSafe(@"C:\path_to\Proligent_file_name.xml");
 ```
 
 ### Configuration

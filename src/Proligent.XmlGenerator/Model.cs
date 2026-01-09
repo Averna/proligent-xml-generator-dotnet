@@ -215,9 +215,6 @@ public class Util
     /// <summary>Validate an XML file against the Datawarehouse schema.</summary>
     public void ValidateXml(string xmlFile) => XmlValidator.ValidateXml(xmlFile, SchemaPath);
     
-    /// <summary>Validate an XML file against the Datawarehouse schema.</summary>
-    public void ValidateXml2(string xmlFile) => XsdValidator.ValidateXml(xmlFile, SchemaPath);
-
     /// <summary>
     /// Validate an XML file against the Datawarehouse schema returning metadata instead of throwing.
     /// </summary>

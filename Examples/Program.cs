@@ -4,20 +4,16 @@ string? destinationFolder = null;
 // If the variable is null, the file is written to the default path
 // C:\Proligent\IntegrationService\Acquisition\Proligent_<guid>.xml.
 // To override this behavior, uncomment the following line and specify your custom output directory.
-destinationFolder = @"C:\temp\Proligent";
+//destinationFolder = @"C:\";
 
 
-var val = XmlValidator.ValidateXmlSafe(
-    @"c:\Proligent\IntegrationService\Acquisition\Processing\Proligent_Test_RF_1_ff5c7082-d832-4ab4-93a5-aafa5437ca25.xml");
-
-return;
 ////////////////////////
 // Example 1
 ////////////////////////
 
-var limit = new Limit(LimitExpression.LOWERBOUND_LEQ_X_LE_HIGHER_BOUND, lowerBound: 10, higherBound: 25);
+var limit = new Limit(LimitExpression.LOWERBOUND_LEQ_X_LE_HIGHER_BOUND, lowerBound: 100, higherBound: 120);
 var measure = new Measure(
-    value: 15,
+    value: 111,
     status: ExecutionStatusKind.PASS,
     limit: limit,
     time: DateTime.UtcNow);
@@ -46,11 +42,11 @@ var product = new ProductUnit(
     manufacturer: "Averna");
 
 var warehouse = new DataWareHouse(topProcess: process, productUnit: product);
-string example1file = warehouse.SaveXml(destinationFolder: destinationFolder); 
+string example1File = warehouse.SaveXml(destinationFolder: destinationFolder); 
 
-// validation 
-var validation = XmlValidator.ValidateXmlSafe(example1file);
-Console.WriteLine($"Example 1 validation result:{validation.IsValid}");
+// validation - optional
+var validation = XmlValidator.ValidateXmlSafe(example1File);
+Console.WriteLine($"Example 1 is valid:{validation.IsValid}");
 if (!validation.IsValid)
 {
     Console.WriteLine($"{validation.Message}");
@@ -80,29 +76,29 @@ var operation2 = process2.AddOperationRun(
         station: "Station/readme_example",
         name: "Operation1"));
 
-var sequence2 = operation2.AddSequenceRun(new SequenceRun(name: "Sequence1"));
+var sequence2 = operation2.AddSequenceRun(new SequenceRun(name: "Sequence2"));
 sequence2.AddStepRun(
     new StepRun(
-        name: "Step1",
+        name: "Step2",
         status: ExecutionStatusKind.PASS,
         measure: new Measure(
-            value: 15,
+            value: 222,
             time: DateTime.UtcNow,
             status: ExecutionStatusKind.PASS,
             limit: new Limit(
                 LimitExpression.LOWERBOUND_LEQ_X_LE_HIGHER_BOUND,
-                lowerBound: 10,
-                higherBound: 25))));
+                lowerBound: 200,
+                higherBound: 250))));
 
 sequence2.Complete(ExecutionStatusKind.PASS);
 operation2.Complete(ExecutionStatusKind.PASS);
 process2.Complete(ExecutionStatusKind.PASS);
 
-string example2file = warehouse2.SaveXml(destinationFolder: destinationFolder);
+string example2File = warehouse2.SaveXml(destinationFolder: destinationFolder);
 
-// validation 
-var validation2 = XmlValidator.ValidateXmlSafe(example2file);
-Console.WriteLine($"Example 1 validation result:{validation2.IsValid}");
+// validation - optional
+var validation2 = XmlValidator.ValidateXmlSafe(example2File);
+Console.WriteLine($"Example 2 is valid:{validation2.IsValid}");
 if (!validation2.IsValid)
 {
     Console.WriteLine($"{validation2.Message}");
