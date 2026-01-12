@@ -18,7 +18,7 @@ public class CharacteristicReservedPrefixTests
         var sequence = new SequenceRun();
         Assert.Throws<ArgumentException>(() =>
             sequence.AddCharacteristic(new Characteristic("Proligent.Custom"))
-            );
+        );
     }
 
     [Fact]
@@ -35,6 +35,6 @@ public class CharacteristicReservedPrefixTests
         ProductUnit productUnit = new ProductUnit();
         Assert.Throws<ArgumentException>(() =>
             productUnit.AddCharacteristic(new Characteristic("Proligent.Custom"))
-            );
+        );
     }
 }

@@ -7,7 +7,8 @@ namespace Proligent.XmlGenerator;
 /// <summary>Validation helpers for Proligent Datawarehouse XML.</summary>
 public static class XmlValidator
 {
-    private static readonly ConcurrentDictionary<string, XmlSchemaSet> SchemaCache = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly ConcurrentDictionary<string, XmlSchemaSet> SchemaCache =
+        new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>Validate an XML document against the canonical DTO schema.</summary>
     /// <param name="filePath">Path to the XML document to validate.</param>

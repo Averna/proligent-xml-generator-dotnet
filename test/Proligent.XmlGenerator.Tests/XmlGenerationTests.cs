@@ -13,7 +13,10 @@ public class XmlGenerationTests
         DateTime instant = new DateTime(2024, 1, 1, 12, 0, 0, DateTimeKind.Unspecified);
 
         Limit limit = new Limit(
-            LimitExpression.LOWERBOUND_LEQ_X_LE_HIGHER_BOUND, lowerBound: 10, higherBound: 25);
+            LimitExpression.LOWERBOUND_LEQ_X_LE_HIGHER_BOUND,
+            lowerBound: 10,
+            higherBound: 25
+        );
         Measure measure = new Measure(
             value: 15,
             id: "00000000-0000-0000-0000-000000000001",

@@ -9,7 +9,7 @@ namespace Proligent.XmlGenerator;
 public static class XmlNamespaces
 {
     /// <summary>The Datawarehouse XML namespace.</summary>
-    public const string Datawarehouse = 
+    public const string Datawarehouse =
         "http://www.averna.com/products/proligent/analytics/DIT/6.85";
 
     /// <summary>The <see cref="XNamespace" /> instance for the Datawarehouse schema.</summary>

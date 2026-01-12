@@ -1,6 +1,7 @@
 ﻿using Proligent.XmlGenerator;
 
 string? destinationFolder = null;
+
 // If the variable is null, the file is written to the default path
 // C:\Proligent\IntegrationService\Acquisition\Proligent_<guid>.xml.
 // To override this behavior, uncomment the following line and specify your custom output directory.
