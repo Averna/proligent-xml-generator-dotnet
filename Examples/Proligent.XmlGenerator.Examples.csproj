@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Proligent.XmlGenerator" Version="1.0.0" />
+    <ProjectReference Include="..\src\Proligent.XmlGenerator\Proligent.XmlGenerator.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="C:\Users\mindekm\.nuget\packages\proligent.xmlgenerator\1.0.0\contentFiles\any\any\Xsd\Datawarehouse.ApplicationConfig.xsd">
