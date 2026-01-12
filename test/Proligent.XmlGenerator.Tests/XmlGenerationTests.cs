@@ -22,7 +22,8 @@ public class XmlGenerationTests
             id: "00000000-0000-0000-0000-000000000001",
             limit: limit,
             time: instant,
-            status: ExecutionStatusKind.PASS);
+            status: ExecutionStatusKind.PASS
+        );
 
         StepRun step = new StepRun(
             measure: measure,
@@ -30,7 +31,8 @@ public class XmlGenerationTests
             name: "Step1",
             status: ExecutionStatusKind.PASS,
             startTime: instant,
-            endTime: instant);
+            endTime: instant
+        );
 
         SequenceRun sequence = new SequenceRun(
             steps: new[] { step },
@@ -38,7 +40,8 @@ public class XmlGenerationTests
             name: "Sequence1",
             status: ExecutionStatusKind.PASS,
             startTime: instant,
-            endTime: instant);
+            endTime: instant
+        );
 
         OperationRun operation = new OperationRun(
             station: "Station/readme_example1",
@@ -48,7 +51,8 @@ public class XmlGenerationTests
             processName: "Process/readme_example1",
             status: ExecutionStatusKind.PASS,
             startTime: instant,
-            endTime: instant);
+            endTime: instant
+        );
 
         ProcessRun process = new ProcessRun(
             productUnitIdentifier: "DutSerialNumber",
@@ -59,24 +63,34 @@ public class XmlGenerationTests
             processMode: "PROD",
             status: ExecutionStatusKind.PASS,
             startTime: instant,
-            endTime: instant);
+            endTime: instant
+        );
 
         ProductUnit product = new ProductUnit(
             productUnitIdentifier: "DutSerialNumber",
             productFullName: "Product/readme_example1",
-            manufacturer: "Averna");
+            manufacturer: "Averna"
+        );
 
         DataWareHouse warehouse = new DataWareHouse(
             topProcess: process,
             productUnit: product,
             generationTime: instant,
-            sourceFingerprint: "00000000-0000-0000-0000-000000000006");
+            sourceFingerprint: "00000000-0000-0000-0000-000000000006"
+        );
 
         string xml = warehouse.ToXml(tzUtil);
         XDocument generated = XDocument.Parse(xml);
-        string expectedPath = Path.Combine(AppContext.BaseDirectory, "Expected", "Proligent_readme_example1.xml");
+        string expectedPath = Path.Combine(
+            AppContext.BaseDirectory,
+            "Expected",
+            "Proligent_readme_example1.xml"
+        );
         XDocument expected = XDocument.Load(expectedPath);
 
-        XNode.DeepEquals(generated, expected).Should().BeTrue("generated XML should match the fixture");
+        XNode
+            .DeepEquals(generated, expected)
+            .Should()
+            .BeTrue("generated XML should match the fixture");
     }
 }

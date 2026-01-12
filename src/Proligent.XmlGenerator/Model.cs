@@ -37,7 +37,7 @@ public enum ExecutionStatusKind
     /// <summary>
     /// The execution was aborted.
     /// </summary>
-    ABORTED
+    ABORTED,
 }
 
 /// <summary>Value types supported by the Measure element.</summary>
@@ -66,7 +66,7 @@ public enum MeasureKind
     /// <summary>
     /// Represents a specific point in time, including both date and time components.
     /// </summary>
-    DATETIME
+    DATETIME,
 }
 
 /// <summary>Expressions describing how numeric limits should be interpreted.</summary>
@@ -112,7 +112,7 @@ public enum LimitExpression
     X_LEQ_LOWERBOUND_or_HIGHERBOUND_LE_X,
 
     /// <summary> Outside open interval: x &lt; LowerBound OR HigherBound &lt; x </summary>
-    X_LE_LOWERBOUND_or_HIGHERBOUND_LE_X
+    X_LE_LOWERBOUND_or_HIGHERBOUND_LE_X,
 }
 
 /// <summary>Metadata describing the result of XML schema validation.</summary>
@@ -164,11 +164,16 @@ public class Util
         TimeZoneInfo? timeZone = null,
         string? destinationDirectory = null,
         string? schemaPath = null,
-        string? timeZoneId = null)
+        string? timeZoneId = null
+    )
     {
-        TimeZone = timeZone ?? (timeZoneId is not null ? TimeZoneInfo.FindSystemTimeZoneById(timeZoneId) : null);
-        DestinationDirectory = destinationDirectory ?? @"C:\Proligent\IntegrationService\Acquisition";
-        _schemaPath = schemaPath ?? Path.Combine(AppContext.BaseDirectory, "Xsd", "Datawarehouse.xsd");
+        TimeZone =
+            timeZone
+            ?? (timeZoneId is not null ? TimeZoneInfo.FindSystemTimeZoneById(timeZoneId) : null);
+        DestinationDirectory =
+            destinationDirectory ?? @"C:\Proligent\IntegrationService\Acquisition";
+        _schemaPath =
+            schemaPath ?? Path.Combine(AppContext.BaseDirectory, "Xsd", "Datawarehouse.xsd");
     }
 
     /// <summary>
@@ -210,11 +215,12 @@ public class Util
     public string Uuid() => UuidFactory();
 
     /// <summary>Set the timezone using an IANA or Windows identifier.</summary>
-    public void SetTimeZone(string timeZoneId) => TimeZone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
+    public void SetTimeZone(string timeZoneId) =>
+        TimeZone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
 
     /// <summary>Validate an XML file against the Datawarehouse schema.</summary>
     public void ValidateXml(string xmlFile) => XmlValidator.ValidateXml(xmlFile, SchemaPath);
-    
+
     /// <summary>
     /// Validate an XML file against the Datawarehouse schema returning metadata instead of throwing.
     /// </summary>
@@ -272,8 +278,9 @@ public abstract class Buildable
     /// <param name="fileName">Optional destination file name.</param>
     /// <param name="util">Optional utility instance to use for configuration.</param>
     /// <returns>The resulting file path.</returns>
-    public virtual string SaveXml(string? destinationFolder=null, 
-        string? fileName = null, 
+    public virtual string SaveXml(
+        string? destinationFolder = null,
+        string? fileName = null,
         Util? util = null)
     {
         util ??= Util.Default;

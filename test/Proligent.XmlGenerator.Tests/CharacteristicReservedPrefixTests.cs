@@ -25,7 +25,10 @@ public class CharacteristicReservedPrefixTests
     public void OperationRun_RejectsReservedCharacteristic()
     {
         Assert.Throws<ArgumentException>(() =>
-            new OperationRun("Station/A", characteristics: new[] { new Characteristic("Proligent.Custom") })
+            new OperationRun(
+                "Station/A",
+                characteristics: new[] { new Characteristic("Proligent.Custom") }
+            )
         );
     }
 

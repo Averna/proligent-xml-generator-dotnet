@@ -7,8 +7,9 @@ namespace Proligent.XmlGenerator;
 /// <summary>Validation helpers for Proligent Datawarehouse XML.</summary>
 public static class XmlValidator
 {
-    private static readonly ConcurrentDictionary<string, XmlSchemaSet> SchemaCache =
-        new(StringComparer.OrdinalIgnoreCase);
+    private static readonly ConcurrentDictionary<string, XmlSchemaSet> SchemaCache = new(
+        StringComparer.OrdinalIgnoreCase
+    );
 
     /// <summary>Validate an XML document against the canonical DTO schema.</summary>
     /// <param name="filePath">Path to the XML document to validate.</param>
@@ -44,7 +45,8 @@ public static class XmlValidator
                 Reason: ex.Message,
                 Path: ex.SourceUri ?? filePath,
                 Line: ex.LineNumber > 0 ? ex.LineNumber : null,
-                Column: ex.LinePosition > 0 ? ex.LinePosition : null);
+                Column: ex.LinePosition > 0 ? ex.LinePosition : null
+            );
             return (metadata);
         }
         catch (Exception ex)
@@ -52,21 +54,27 @@ public static class XmlValidator
             var metadata = new ValidationMetadata(
                 IsValid: false,
                 Message: ex.Message,
-                Reason: ex.InnerException?.Message);
+                Reason: ex.InnerException?.Message
+            );
             return (metadata);
         }
-        
+
         return new ValidationMetadata(IsValid: true, Message: "Validation was successful.");
     }
 
-    private static (XmlReaderSettings Settings, Func<string, XmlReaderSettings, XmlReader> Factory) CreateValidator(string? schemaPath)
+    private static (
+        XmlReaderSettings Settings,
+        Func<string, XmlReaderSettings, XmlReader> Factory
+    ) CreateValidator(string? schemaPath)
     {
         var resolvedSchema = ResolveSchema(schemaPath);
         var settings = new XmlReaderSettings
         {
             Schemas = resolvedSchema,
             ValidationType = ValidationType.Schema,
-            ValidationFlags = XmlSchemaValidationFlags.ProcessSchemaLocation | XmlSchemaValidationFlags.ReportValidationWarnings
+            ValidationFlags =
+                XmlSchemaValidationFlags.ProcessSchemaLocation
+                | XmlSchemaValidationFlags.ReportValidationWarnings,
         };
 
         // Track the current element path to improve error metadata.
@@ -75,7 +83,12 @@ public static class XmlValidator
         settings.ValidationEventHandler += (_, args) =>
         {
             string path = "/" + string.Join("/", elementStack.Reverse());
-            throw new XmlSchemaValidationException(args.Message, args.Exception, args.Exception?.LineNumber ?? 0, args.Exception?.LinePosition ?? 0);
+            throw new XmlSchemaValidationException(
+                args.Message,
+                args.Exception,
+                args.Exception?.LineNumber ?? 0,
+                args.Exception?.LinePosition ?? 0
+            );
         };
 
         return (settings, ReaderFactory);
@@ -95,9 +108,7 @@ public static class XmlValidator
 
         if (xsdFiles.Length == 0)
         {
-            throw new ApplicationException(
-                "No xsd found in resource folder " + path
-            );
+            throw new ApplicationException("No xsd found in resource folder " + path);
         }
 
         var schemaSet = new XmlSchemaSet();
@@ -105,10 +116,12 @@ public static class XmlValidator
         foreach (var xsd in xsdFiles)
         {
             using var stream = File.OpenRead(xsd);
-            var schema = XmlSchema.Read(stream, (sender, args) =>
-            {
-                //Here you can log which xsd were loaded.
-            });
+            var schema = XmlSchema.Read(
+                stream,
+                (sender, args) => {
+                    //Here you can log which xsd were loaded.
+                }
+            );
             if (schema != null)
             {
                 schema.SourceUri = xsd;
