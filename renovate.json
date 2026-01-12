@@ -1,13 +1,7 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:recommended",
-    ":dependencyDashboard",
-    ":semanticCommits"
-  ],
-  "labels": [
-    "dependencies"
-  ],
+  "extends": ["config:recommended", ":dependencyDashboard", ":semanticCommits"],
+  "labels": ["dependencies"],
   "packageRules": [
     {
       "matchManagers": ["nuget"],
@@ -20,4 +14,3 @@
     }
   ]
 }
-
