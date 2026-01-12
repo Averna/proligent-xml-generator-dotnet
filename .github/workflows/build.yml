@@ -12,9 +12,9 @@ on:
   workflow_dispatch:
     inputs:
       branch:
-        description: 'Manual run'
+        description: "Manual run"
         required: true
-        default: 'main'
+        default: "main"
 
 permissions:
   contents: read
@@ -69,4 +69,3 @@ jobs:
           name: help-docs-${{ matrix.dotnet-version }}
           path: build/help
           if-no-files-found: warn
-
