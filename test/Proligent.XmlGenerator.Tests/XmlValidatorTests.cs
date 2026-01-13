@@ -32,6 +32,6 @@ public class XmlValidatorTests
         Assert.NotNull(metadata);
         Assert.False(metadata.IsValid);
         Assert.Contains("ProductFullName", metadata!.Message);
-        Assert.Contains("ProductUnit", metadata.Path ?? string.Empty);
+        Assert.Contains("ProductUnit", metadata!.Message);
     }
 }

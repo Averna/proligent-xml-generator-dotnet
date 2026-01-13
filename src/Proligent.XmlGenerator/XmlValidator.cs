@@ -80,11 +80,17 @@ public static class XmlValidator
         // Track the current element path to improve error metadata.
         var elementStack = new Stack<string>();
 
-        settings.ValidationEventHandler += (_, args) =>
+        settings.ValidationEventHandler += (sender, args) =>
         {
             string path = "/" + string.Join("/", elementStack.Reverse());
+
+            if (sender is System.Xml.XmlReader reader)
+            {
+                path += "/" + reader.Name;
+            }
+            string messageWithPath = $"{args.Message} (Path: {path})";
             throw new XmlSchemaValidationException(
-                args.Message,
+                messageWithPath,
                 args.Exception,
                 args.Exception?.LineNumber ?? 0,
                 args.Exception?.LinePosition ?? 0

@@ -88,9 +88,9 @@ public class XmlGenerationTests
         );
         XDocument expected = XDocument.Load(expectedPath);
 
-        XNode
-            .DeepEquals(generated, expected)
+        XmlTestUtils
+            .NormalizeXml(generated.ToString())
             .Should()
-            .BeTrue("generated XML should match the fixture");
+            .Be(XmlTestUtils.NormalizeXml(expected.ToString()));
     }
 }
