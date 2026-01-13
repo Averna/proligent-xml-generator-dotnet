@@ -26,7 +26,7 @@ jobs:
       - name: Checkout selected tag (manual run)
         if: ${{ github.event_name == 'workflow_dispatch' }}
         run: |
-          git fetch --tags 
+          git fetch --tags
           git checkout ${{ github.event.inputs.tag }}
 
       - name: Build
@@ -40,3 +40,4 @@ jobs:
           dotnet nuget push "out/*.nupkg" \
             --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
             --api-key ${{ secrets.GH_PACKAGES_TOKEN }}
+
