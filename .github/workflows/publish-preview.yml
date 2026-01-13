@@ -5,6 +5,11 @@ on:
   push:
     tags:
       - "v*-beta*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to build"
+        required: true
 
 jobs:
   publish:
@@ -17,6 +22,12 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "8.0.x"
+
+      - name: Checkout selected tag (manual run)
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          git fetch --tags 
+          git checkout ${{ github.event.inputs.tag }}
 
       - name: Build
         run: dotnet build -c Release
