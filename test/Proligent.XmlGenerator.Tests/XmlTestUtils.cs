@@ -9,8 +9,11 @@ namespace Proligent.XmlGenerator.Tests
         public static string NormalizeXml(string xml)
         {
             var doc = XDocument.Parse(xml);
-
-            SortAttributes(doc.Root);
+            
+            if (doc.Root != null)
+            {
+                SortAttributes(doc.Root);
+            }
 
             var readerSettings = new XmlReaderSettings
             {
@@ -36,7 +39,7 @@ namespace Proligent.XmlGenerator.Tests
             return sb.ToString();
         }
 
-        static void SortAttributes(XElement element)
+        private static void SortAttributes(XElement element)
         {
             var ordered = element
                 .Attributes()
