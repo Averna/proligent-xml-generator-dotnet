@@ -188,17 +188,31 @@ public static class XmlValidator
         public override string Value => _inner.Value;
         public override string XmlLang => _inner.XmlLang;
         public override XmlSpace XmlSpace => _inner.XmlSpace;
+
         public override string GetAttribute(int i) => _inner.GetAttribute(i);
+
         public override string? GetAttribute(string name) => _inner.GetAttribute(name);
-        public override string? GetAttribute(string name, string? namespaceURI) => _inner.GetAttribute(name, namespaceURI);
+
+        public override string? GetAttribute(string name, string? namespaceURI) =>
+            _inner.GetAttribute(name, namespaceURI);
+
         public override string? LookupNamespace(string prefix) => _inner.LookupNamespace(prefix);
+
         public override bool MoveToAttribute(string name) => _inner.MoveToAttribute(name);
-        public override bool MoveToAttribute(string name, string? ns) => _inner.MoveToAttribute(name, ns);
+
+        public override bool MoveToAttribute(string name, string? ns) =>
+            _inner.MoveToAttribute(name, ns);
+
         public override bool MoveToElement() => _inner.MoveToElement();
+
         public override bool MoveToFirstAttribute() => _inner.MoveToFirstAttribute();
+
         public override bool MoveToNextAttribute() => _inner.MoveToNextAttribute();
+
         public override bool ReadAttributeValue() => _inner.ReadAttributeValue();
+
         public override void ResolveEntity() => _inner.ResolveEntity();
+
         public override void Close() => _inner.Close();
         #endregion
     }

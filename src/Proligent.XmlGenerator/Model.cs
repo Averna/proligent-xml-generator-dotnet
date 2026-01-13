@@ -281,7 +281,8 @@ public abstract class Buildable
     public virtual string SaveXml(
         string? destinationFolder = null,
         string? fileName = null,
-        Util? util = null)
+        Util? util = null
+    )
     {
         util ??= Util.Default;
         string uuid = util.Uuid();
@@ -292,16 +293,21 @@ public abstract class Buildable
         var targetPath = string.IsNullOrWhiteSpace(destinationFolder)
             ? Path.Combine(util.DestinationDirectory, targetFileName)
             : Path.Combine(destinationFolder, targetFileName);
-        
+
         Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(targetPath))!);
         var xml = ToXml(util);
-        File.WriteAllText(targetPath, xml, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+        File.WriteAllText(
+            targetPath,
+            xml,
+            new UTF8Encoding(encoderShouldEmitUTF8Identifier: false)
+        );
         return targetPath;
     }
 
     private sealed class Utf8StringWriter : StringWriter
     {
-        public override Encoding Encoding => new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
+        public override Encoding Encoding =>
+            new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
     }
 }
 
@@ -320,10 +326,22 @@ public sealed class Limit
         { LimitExpression.X_LE_HIGHER_BOUND, "X < HIGHERBOUND" },
         { LimitExpression.X_EQ_HIGHER_BOUND, "X == HIGHERBOUND" },
         { LimitExpression.X_NEQ_HIGHER_BOUND, "X != HIGHERBOUND" },
-        { LimitExpression.X_LEQ_LOWERBOUND_OR_HIGHERBOUND_LEQ_X, "X <= LOWERBOUND OR HIGHERBOUND <= X" },
-        { LimitExpression.X_LE_LOWERBOUND_or_HIGHERBOUND_LEQ_X, "X < LOWERBOUND or HIGHERBOUND <= X" },
-        { LimitExpression.X_LEQ_LOWERBOUND_or_HIGHERBOUND_LE_X, "X <= LOWERBOUND or HIGHERBOUND < X" },
-        { LimitExpression.X_LE_LOWERBOUND_or_HIGHERBOUND_LE_X, "X < LOWERBOUND or HIGHERBOUND < X" },
+        {
+            LimitExpression.X_LEQ_LOWERBOUND_OR_HIGHERBOUND_LEQ_X,
+            "X <= LOWERBOUND OR HIGHERBOUND <= X"
+        },
+        {
+            LimitExpression.X_LE_LOWERBOUND_or_HIGHERBOUND_LEQ_X,
+            "X < LOWERBOUND or HIGHERBOUND <= X"
+        },
+        {
+            LimitExpression.X_LEQ_LOWERBOUND_or_HIGHERBOUND_LE_X,
+            "X <= LOWERBOUND or HIGHERBOUND < X"
+        },
+        {
+            LimitExpression.X_LE_LOWERBOUND_or_HIGHERBOUND_LE_X,
+            "X < LOWERBOUND or HIGHERBOUND < X"
+        },
     };
 
     private readonly LimitExpression _expression;
@@ -369,7 +387,8 @@ public sealed class Limit
 public sealed class Characteristic : Buildable
 {
     private const string ReservedPrefix = "Proligent.";
-    private const string ReservedError = "Characteristic names starting with 'Proligent.' are reserved for internal use.";
+    private const string ReservedError =
+        "Characteristic names starting with 'Proligent.' are reserved for internal use.";
     private readonly bool _allowReserved;
 
     /// <summary>Create a new characteristic.</summary>
@@ -392,7 +411,10 @@ public sealed class Characteristic : Buildable
 
     internal void EnsureAllowed()
     {
-        if (!_allowReserved && FullName.StartsWith(ReservedPrefix, StringComparison.OrdinalIgnoreCase))
+        if (
+            !_allowReserved
+            && FullName.StartsWith(ReservedPrefix, StringComparison.OrdinalIgnoreCase)
+        )
         {
             throw new ArgumentException(ReservedError);
         }
@@ -404,7 +426,8 @@ public sealed class Characteristic : Buildable
         return new XElement(
             XmlNamespaces.Dw + "Characteristic",
             new XAttribute("FullName", FullName),
-            string.IsNullOrWhiteSpace(Value) ? null : new XAttribute("Value", Value));
+            string.IsNullOrWhiteSpace(Value) ? null : new XAttribute("Value", Value)
+        );
     }
 }
 
@@ -412,7 +435,12 @@ public sealed class Characteristic : Buildable
 public sealed class Document : Buildable
 {
     /// <summary>Create a new document reference.</summary>
-    public Document(string fileName, string? identifier = null, string? name = null, string? description = null)
+    public Document(
+        string fileName,
+        string? identifier = null,
+        string? name = null,
+        string? description = null
+    )
     {
         FileName = fileName;
         Identifier = identifier ?? Util.Default.Uuid();
@@ -440,7 +468,10 @@ public sealed class Document : Buildable
             new XAttribute("Identifier", Identifier),
             new XAttribute("FileName", FileName),
             string.IsNullOrWhiteSpace(Name) ? null : new XAttribute("Name", Name),
-            string.IsNullOrWhiteSpace(Description) ? null : new XAttribute("Description", Description));
+            string.IsNullOrWhiteSpace(Description)
+                ? null
+                : new XAttribute("Description", Description)
+        );
     }
 }
 
@@ -460,7 +491,8 @@ public abstract class ManufacturingStep : Buildable
         string? name = null,
         ExecutionStatusKind status = ExecutionStatusKind.NOT_COMPLETED,
         DateTime? startTime = null,
-        DateTime? endTime = null)
+        DateTime? endTime = null
+    )
     {
         Id = id ?? Util.Default.Uuid();
         Name = name ?? string.Empty;
@@ -506,7 +538,8 @@ public abstract class VersionedManufacturingStep : ManufacturingStep
         string? version = null,
         ExecutionStatusKind status = ExecutionStatusKind.NOT_COMPLETED,
         DateTime? startTime = null,
-        DateTime? endTime = null)
+        DateTime? endTime = null
+    )
         : base(id, name, status, startTime, endTime)
     {
         Version = version ?? string.Empty;
@@ -532,7 +565,8 @@ public sealed class Measure : Buildable
         string? comments = null,
         string? unit = null,
         string? symbol = null,
-        ExecutionStatusKind? status = null)
+        ExecutionStatusKind? status = null
+    )
     {
         _value = value;
         Id = id ?? Util.Default.Uuid();
@@ -573,7 +607,8 @@ public sealed class Measure : Buildable
         var measureElement = new XElement(
             XmlNamespaces.Dw + "Measure",
             new XAttribute("MeasureId", Id),
-            new XAttribute("MeasureTime", util.FormatDateTime(Time)));
+            new XAttribute("MeasureTime", util.FormatDateTime(Time))
+        );
 
         if (Status.HasValue)
         {
@@ -600,13 +635,18 @@ public sealed class Measure : Buildable
             new XElement(
                 XmlNamespaces.Dw + "Value",
                 new XAttribute("Type", measureKind),
-                stringValue));
+                stringValue
+            )
+        );
 
         if (Limit != null)
         {
-            measureElement.Add(new XElement(
-                XmlNamespaces.Dw + "Limit",
-                new XAttribute("LimitExpression", Limit.ToString())));
+            measureElement.Add(
+                new XElement(
+                    XmlNamespaces.Dw + "Limit",
+                    new XAttribute("LimitExpression", Limit.ToString())
+                )
+            );
         }
 
         return measureElement;
@@ -631,9 +671,15 @@ public sealed class Measure : Buildable
             case decimal m:
                 return (m.ToString(CultureInfo.InvariantCulture), MeasureKind.REAL);
             case DateTime dt:
-                return (dt.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture), MeasureKind.DATETIME);
+                return (
+                    dt.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture),
+                    MeasureKind.DATETIME
+                );
             case DateTimeOffset dto:
-                return (dto.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture), MeasureKind.DATETIME);
+                return (
+                    dto.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture),
+                    MeasureKind.DATETIME
+                );
             default:
                 throw new ArgumentException("Incompatible value type for Measure.");
         }
@@ -656,7 +702,8 @@ public sealed class StepRun : ManufacturingStep
         DateTime? startTime = null,
         DateTime? endTime = null,
         IEnumerable<Characteristic>? characteristics = null,
-        IEnumerable<Document>? documents = null)
+        IEnumerable<Document>? documents = null
+    )
         : base(id, name, status, startTime, endTime)
     {
         if (measure != null)
@@ -682,7 +729,8 @@ public sealed class StepRun : ManufacturingStep
         var step = new XElement(
             XmlNamespaces.Dw + "StepRun",
             new XAttribute("StepRunId", Id),
-            new XAttribute("StartDate", util.FormatDateTime(StartTime)));
+            new XAttribute("StartDate", util.FormatDateTime(StartTime))
+        );
 
         if (Status != ExecutionStatusKind.NOT_COMPLETED)
         {
@@ -757,7 +805,8 @@ public sealed class SequenceRun : VersionedManufacturingStep
         DateTime? startTime = null,
         DateTime? endTime = null,
         IEnumerable<Characteristic>? characteristics = null,
-        IEnumerable<Document>? documents = null)
+        IEnumerable<Document>? documents = null
+    )
         : base(id, name, version, status, startTime, endTime)
     {
         Steps = (steps ?? Array.Empty<StepRun>()).ToList();
@@ -789,9 +838,14 @@ public sealed class SequenceRun : VersionedManufacturingStep
             throw new ArgumentException("Station cannot be empty when applied to SequenceRun.");
         }
 
-        if (!string.IsNullOrWhiteSpace(_station) && !string.Equals(_station, station, StringComparison.OrdinalIgnoreCase))
+        if (
+            !string.IsNullOrWhiteSpace(_station)
+            && !string.Equals(_station, station, StringComparison.OrdinalIgnoreCase)
+        )
         {
-            throw new InvalidOperationException("SequenceRun is already associated with a different station.");
+            throw new InvalidOperationException(
+                "SequenceRun is already associated with a different station."
+            );
         }
 
         _station = station;
@@ -803,14 +857,17 @@ public sealed class SequenceRun : VersionedManufacturingStep
         util ??= Util.Default;
         if (string.IsNullOrWhiteSpace(_station))
         {
-            throw new InvalidOperationException("SequenceRun must be added to an OperationRun with a station before building.");
+            throw new InvalidOperationException(
+                "SequenceRun must be added to an OperationRun with a station before building."
+            );
         }
 
         var sequence = new XElement(
             XmlNamespaces.Dw + "SequenceRun",
             new XAttribute("SequenceRunId", Id),
             new XAttribute("StartDate", util.FormatDateTime(StartTime)),
-            new XAttribute("StationFullName", _station));
+            new XAttribute("StationFullName", _station)
+        );
 
         if (Status != ExecutionStatusKind.NOT_COMPLETED)
         {
@@ -893,7 +950,8 @@ public sealed class OperationRun : ManufacturingStep
         DateTime? startTime = null,
         DateTime? endTime = null,
         IEnumerable<Characteristic>? characteristics = null,
-        IEnumerable<Document>? documents = null)
+        IEnumerable<Document>? documents = null
+    )
         : base(id, name, status, startTime, endTime)
     {
         if (string.IsNullOrWhiteSpace(station))
@@ -945,7 +1003,8 @@ public sealed class OperationRun : ManufacturingStep
             XmlNamespaces.Dw + "OperationRun",
             new XAttribute("OperationRunId", Id),
             new XAttribute("OperationRunStartTime", util.FormatDateTime(StartTime)),
-            new XAttribute("StationFullName", Station));
+            new XAttribute("StationFullName", Station)
+        );
 
         if (Status != ExecutionStatusKind.NOT_COMPLETED)
         {
@@ -977,7 +1036,13 @@ public sealed class OperationRun : ManufacturingStep
         var characteristics = new List<Characteristic>(Characteristics);
         if (!string.IsNullOrWhiteSpace(TestPositionName))
         {
-            characteristics.Add(new Characteristic("Proligent.TestPositionName", TestPositionName, allowReserved: true));
+            characteristics.Add(
+                new Characteristic(
+                    "Proligent.TestPositionName",
+                    TestPositionName,
+                    allowReserved: true
+                )
+            );
         }
 
         foreach (var characteristic in characteristics)
@@ -1041,7 +1106,8 @@ public sealed class ProcessRun : VersionedManufacturingStep
         string? processMode = null,
         ExecutionStatusKind status = ExecutionStatusKind.NOT_COMPLETED,
         DateTime? startTime = null,
-        DateTime? endTime = null)
+        DateTime? endTime = null
+    )
         : base(id, name, version, status, startTime, endTime)
     {
         ProductUnitIdentifier = productUnitIdentifier ?? Util.Default.Uuid();
@@ -1069,7 +1135,9 @@ public sealed class ProcessRun : VersionedManufacturingStep
 
         foreach (var operation in Operations)
         {
-            if (string.IsNullOrWhiteSpace(operation.ProcessName) && !string.IsNullOrWhiteSpace(Name))
+            if (
+                string.IsNullOrWhiteSpace(operation.ProcessName) && !string.IsNullOrWhiteSpace(Name)
+            )
             {
                 operation.ProcessName = Name;
             }
@@ -1080,7 +1148,8 @@ public sealed class ProcessRun : VersionedManufacturingStep
             new XAttribute("ProcessRunId", Id),
             new XAttribute("ProductUnitIdentifier", ProductUnitIdentifier),
             new XAttribute("ProductFullName", ProductFullName),
-            new XAttribute("ProcessRunStartTime", util.FormatDateTime(StartTime)));
+            new XAttribute("ProcessRunStartTime", util.FormatDateTime(StartTime))
+        );
 
         if (Status != ExecutionStatusKind.NOT_COMPLETED)
         {
@@ -1140,7 +1209,8 @@ public sealed class ProductUnit : Buildable
         DateTime? creationTime = null,
         DateTime? manufacturingTime = null,
         bool? scrapped = null,
-        DateTime? scrapTime = null)
+        DateTime? scrapTime = null
+    )
     {
         ProductUnitIdentifier = productUnitIdentifier ?? Util.Default.Uuid();
         ProductFullName = productFullName ?? string.Empty;
@@ -1188,7 +1258,8 @@ public sealed class ProductUnit : Buildable
 
         var productUnit = new XElement(
             XmlNamespaces.Dw + "ProductUnit",
-            new XAttribute("ProductUnitIdentifier", ProductUnitIdentifier));
+            new XAttribute("ProductUnitIdentifier", ProductUnitIdentifier)
+        );
 
         if (!string.IsNullOrWhiteSpace(ProductFullName))
         {
@@ -1207,12 +1278,16 @@ public sealed class ProductUnit : Buildable
 
         if (ManufacturingTime.HasValue)
         {
-            productUnit.Add(new XAttribute("ManufacturingTime", util.FormatDateTime(ManufacturingTime)));
+            productUnit.Add(
+                new XAttribute("ManufacturingTime", util.FormatDateTime(ManufacturingTime))
+            );
         }
 
         if (Scrapped.HasValue)
         {
-            productUnit.Add(new XAttribute("Scrapped", Scrapped.Value.ToString().ToLowerInvariant()));
+            productUnit.Add(
+                new XAttribute("Scrapped", Scrapped.Value.ToString().ToLowerInvariant())
+            );
         }
 
         if (ScrapTime.HasValue)
@@ -1259,7 +1334,8 @@ public sealed class DataWareHouse : Buildable
         ProcessRun? topProcess = null,
         ProductUnit? productUnit = null,
         DateTime? generationTime = null,
-        string? sourceFingerprint = null)
+        string? sourceFingerprint = null
+    )
     {
         TopProcess = topProcess;
         ProductUnit = productUnit;
@@ -1287,7 +1363,8 @@ public sealed class DataWareHouse : Buildable
         var warehouse = new XElement(
             XmlNamespaces.Dw + "Proligent.Datawarehouse",
             new XAttribute("GenerationTime", util.FormatDateTime(GenerationTime)),
-            new XAttribute("DataSourceFingerprint", SourceFingerprint));
+            new XAttribute("DataSourceFingerprint", SourceFingerprint)
+        );
 
         if (TopProcess != null)
         {
