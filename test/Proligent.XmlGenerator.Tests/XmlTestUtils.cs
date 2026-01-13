@@ -9,7 +9,7 @@ namespace Proligent.XmlGenerator.Tests
         public static string NormalizeXml(string xml)
         {
             var doc = XDocument.Parse(xml);
-            
+
             if (doc.Root != null)
             {
                 SortAttributes(doc.Root);
