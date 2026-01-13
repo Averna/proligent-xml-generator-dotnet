@@ -68,4 +68,3 @@ jobs:
           name: help-docs-${{ matrix.dotnet-version }}
           path: build/help
           if-no-files-found: warn
-
