@@ -1,5 +1,13 @@
 ﻿# Proligent™ XML Generator for .NET
 
+[![Build][actions-shield]][actions]
+[![NuGet Gallery][nuget-version]][nuget-page]
+
+[actions-shield]: https://github.com/averna/proligent-xml-generator-dotnet/actions/workflows/build.yml/badge.svg
+[actions]: https://github.com/averna/proligent-xml-generator-dotnet/actions/workflows/build.yml
+[nuget-version]: https://img.shields.io/nuget/v/Proligent.XmlGenerator
+[nuget-page]: https://www.nuget.org/packages/Proligent.XmlGenerator
+
 .NET library for generating Proligent™ XML files. It provides a simple,
 structured API for building valid import files, reducing manual XML writing and
 ensuring consistent data formatting. These files are used to import data into
