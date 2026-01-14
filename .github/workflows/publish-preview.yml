@@ -1,0 +1,42 @@
+---
+name: Publish Preview Package
+
+on:
+  push:
+    tags:
+      - "v*-beta*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to build"
+        required: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Checkout selected tag (manual run)
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          git fetch --tags
+          git checkout ${{ github.event.inputs.tag }}
+
+      - name: Build
+        run: dotnet build -c Release
+
+      - name: Pack
+        run: dotnet pack -c Release -o out --no-build
+
+      - name: Publish to GitHub Packages
+        run: |
+          dotnet nuget push "out/*.nupkg" \
+            --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
+            --api-key ${{ secrets.GH_PACKAGES_TOKEN }}

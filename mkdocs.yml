@@ -1,0 +1,33 @@
+---
+site_name: Proligent XML Generator (.NET)
+site_description: .NET library for generating Proligent XML payloads.
+repo_url: https://github.com/Averna/proligent-xml-generator-dotnet
+theme:
+  name: material
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - content.code.copy
+plugins:
+  - search
+  - mkdocstrings:
+      default_handler: csharp
+      handlers:
+        csharp:
+          solution: Proligent.XmlGenerator.sln
+          project: src/Proligent.XmlGenerator/Proligent.XmlGenerator.csproj
+          cache_dir: .cache/mkdocstrings/csharp
+          paths: [src/Proligent.XmlGenerator/bin/Release/net8.0]
+markdown_extensions:
+  - admonition
+  - codehilite
+  - toc:
+      permalink: true
+nav:
+  - Overview: index.md
+  - User Guide:
+      - Quickstart: user/quickstart.md
+      - Manufacturing Model: user/manufacturing-information-model.md
+  - Developer Guide:
+      - Guidelines: developer/developer-guidelines.md
+      - Change validation: developer/change-validation.md

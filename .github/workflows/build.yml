@@ -1,0 +1,70 @@
+---
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Manual run"
+        required: true
+        default: "main"
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  lint:
+    name: Lint code
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Run Mega-Linter
+        uses: oxsecurity/megalinter@v9.1.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build:
+    name: Build & Test (.NET 8)
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        dotnet-version: ["8.0.x"]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET ${{ matrix.dotnet-version }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ matrix.dotnet-version }}
+
+      - name: Restore dependencies
+        run: dotnet restore Proligent.XmlGenerator.sln
+
+      - name: Build
+        run: dotnet build Proligent.XmlGenerator.sln -c Release --no-restore
+
+      - name: Test
+        run: dotnet test Proligent.XmlGenerator.sln -c Release --no-build --logger trx
+
+      - name: Generate help docs from XML comments
+        shell: pwsh
+        run: ./scripts/generate-help.ps1 -Configuration Release
+
+      - name: Upload help docs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: help-docs-${{ matrix.dotnet-version }}
+          path: build/help
+          if-no-files-found: warn

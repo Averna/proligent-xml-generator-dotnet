@@ -1,0 +1,64 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\src\Proligent.XmlGenerator\Proligent.XmlGenerator.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="C:\Users\mindekm\.nuget\packages\proligent.xmlgenerator\1.0.0\contentFiles\any\any\Xsd\Datawarehouse.ApplicationConfig.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\mindekm\.nuget\packages\proligent.xmlgenerator\1.0.0\contentFiles\any\any\Xsd\Datawarehouse.Assembly.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\mindekm\.nuget\packages\proligent.xmlgenerator\1.0.0\contentFiles\any\any\Xsd\Datawarehouse.ComponentUnit.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\mindekm\.nuget\packages\proligent.xmlgenerator\1.0.0\contentFiles\any\any\Xsd\Datawarehouse.Event.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\mindekm\.nuget\packages\proligent.xmlgenerator\1.0.0\contentFiles\any\any\Xsd\Datawarehouse.Failure.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\mindekm\.nuget\packages\proligent.xmlgenerator\1.0.0\contentFiles\any\any\Xsd\Datawarehouse.Measure.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\mindekm\.nuget\packages\proligent.xmlgenerator\1.0.0\contentFiles\any\any\Xsd\Datawarehouse.Model.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\mindekm\.nuget\packages\proligent.xmlgenerator\1.0.0\contentFiles\any\any\Xsd\Datawarehouse.OperationCycle.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\mindekm\.nuget\packages\proligent.xmlgenerator\1.0.0\contentFiles\any\any\Xsd\Datawarehouse.OperationRun.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\mindekm\.nuget\packages\proligent.xmlgenerator\1.0.0\contentFiles\any\any\Xsd\Datawarehouse.ProcessRun.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\mindekm\.nuget\packages\proligent.xmlgenerator\1.0.0\contentFiles\any\any\Xsd\Datawarehouse.ProductUnit.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\mindekm\.nuget\packages\proligent.xmlgenerator\1.0.0\contentFiles\any\any\Xsd\Datawarehouse.ProductUnitReturn.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\mindekm\.nuget\packages\proligent.xmlgenerator\1.0.0\contentFiles\any\any\Xsd\Datawarehouse.SequenceRun.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\mindekm\.nuget\packages\proligent.xmlgenerator\1.0.0\contentFiles\any\any\Xsd\Datawarehouse.Shipment.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\mindekm\.nuget\packages\proligent.xmlgenerator\1.0.0\contentFiles\any\any\Xsd\Datawarehouse.StepRun.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\mindekm\.nuget\packages\proligent.xmlgenerator\1.0.0\contentFiles\any\any\Xsd\Datawarehouse.TrackedComponentUnit.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\mindekm\.nuget\packages\proligent.xmlgenerator\1.0.0\contentFiles\any\any\Xsd\Datawarehouse.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+</Project>

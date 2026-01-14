@@ -1,0 +1,32 @@
+# C extensions
+*.so
+
+# Translations
+*.mo
+*.pot
+
+# .NET build artifacts
+[Bb]in/
+[Oo]bj/
+.vs/
+TestResult*/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.ncrunch*
+*.localhistory
+*.snupkg
+*.nupkg
+coverage.*
+*.coverage*
+
+# Visual Studio Code
+.vscode/
+
+# Temp folder
+tmp
+
+# Test artifacts
+test/out/
+

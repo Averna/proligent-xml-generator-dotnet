@@ -1,0 +1,39 @@
+---
+name: Publish NuGet
+
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore dependencies
+        run: dotnet restore Proligent.XmlGenerator.sln
+
+      - name: Build Release
+        run: dotnet build src/Proligent.XmlGenerator/Proligent.XmlGenerator.csproj -c Release --no-restore
+
+      - name: Pack
+        run: dotnet pack src/Proligent.XmlGenerator/Proligent.XmlGenerator.csproj -c Release -o ./artifacts --no-build
+
+      - name: Publish to NuGet.org
+        env:
+          NUGET_API_TOKEN: ${{ secrets.NUGET_API_TOKEN }}
+        run: |
+          dotnet nuget push "./artifacts/*.nupkg" \
+            --api-key "$NUGET_API_TOKEN" \
+            --source https://api.nuget.org/v3/index.json
