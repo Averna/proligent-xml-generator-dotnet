@@ -9,7 +9,7 @@
     <PackageId>Proligent.XmlGenerator</PackageId>
     <AssemblyName>Proligent.XmlGenerator</AssemblyName>
     <RootNamespace>Proligent.XmlGenerator</RootNamespace>
-    <Version>1.0.0</Version>
+    <Version>1.1.0</Version>
     <Authors>Ben Engelen;Kaitlin Van de Kerckhove;Philippe Gaclinas;Mathieu Balanger;Marian Mindek</Authors>
     <Company>Averna Technologies Inc.</Company>
     <Product>Proligent XML Generator</Product>
