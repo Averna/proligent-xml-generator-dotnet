@@ -340,36 +340,65 @@ public abstract class Buildable
         foreach (var docElem in docElements)
         {
             var fileAttr = docElem.Attribute("FileName");
-            if (fileAttr is null) continue;
+            if (fileAttr is null)
+                continue; 
 
             var sourcePath = fileAttr.Value;
-            if (string.IsNullOrWhiteSpace(sourcePath)) continue;
+            if (string.IsNullOrWhiteSpace(sourcePath))
+                throw new ArgumentException("Document FileName attribute is empty.", nameof(document));
 
-            // Resolve source if relative or missing
-            if (!File.Exists(sourcePath))
+            string resolvedSource = sourcePath;
+            if (!File.Exists(resolvedSource))
             {
-                var alt = Path.GetFullPath(sourcePath);
-                if (!File.Exists(alt))
+                try
                 {
-                    continue;
+                    resolvedSource = Path.GetFullPath(sourcePath);
                 }
-
-                sourcePath = alt;
+                catch (Exception ex)
+                {
+                    throw new ArgumentException($"Invalid document path: '{sourcePath}'.", nameof(document), ex);
+                }
             }
 
-            var originalFileName = Path.GetFileName(sourcePath);
-            if (string.IsNullOrWhiteSpace(originalFileName)) continue;
+            if (!File.Exists(resolvedSource))
+            {
+                throw new FileNotFoundException($"Document source file not found: '{sourcePath}'", sourcePath);
+            }
 
-            // New naming: Document_{GUID}_{original filename + extension}
-            var guid = Guid.NewGuid().ToString();
-            var newFileName = $"Document_{guid}_{originalFileName}";
+            if ((File.GetAttributes(resolvedSource) & FileAttributes.Directory) == FileAttributes.Directory)
+            {
+                throw new IOException($"Document source path is a directory, not a file: '{resolvedSource}'");
+            }
+
+            var originalFileName = Path.GetFileName(resolvedSource);
+            if (string.IsNullOrWhiteSpace(originalFileName))
+                throw new InvalidOperationException($"Unable to determine filename for document: '{resolvedSource}'");
+
+            // Compute deterministic identifier using DocumentUniqueName; propagate if it fails.
+            string documentId;
+            try
+            {
+                documentId = DocumentUniqueName.FromFilePath(resolvedSource);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Failed to compute document identifier for '{resolvedSource}'.", ex);
+            }
+
+            var newFileName = $"Document_{documentId}_{originalFileName}";
             var destPath = Path.Combine(destinationFolder, newFileName);
 
-            // Overwrite existing destination to ensure latest copy present
-            File.Copy(sourcePath, destPath, overwrite: true);
+            try
+            {
+                File.Copy(resolvedSource, destPath, overwrite: true);
+            }
+            catch (Exception ex)
+            {
+                throw new IOException($"Failed to copy document '{resolvedSource}' to '{destPath}'.", ex);
+            }
 
-            // Update XML to reference the new file name (no path)
             fileAttr.SetValue(newFileName);
+            docElem.SetAttributeValue("Identifier", documentId);
         }
     }
 

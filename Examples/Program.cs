@@ -23,18 +23,15 @@ var measure = new Measure(
     time: DateTime.UtcNow
 );
 var step = new StepRun(name: "Step1", status: ExecutionStatusKind.PASS, measure: measure);
-step.AddDocument(new Document(@"c:\temp\Proligent\step_document.txt"));
 
 var sequence = new SequenceRun(name: "Sequence1", status: ExecutionStatusKind.PASS);
 sequence.AddStepRun(step);
-sequence.AddDocument(new Document(@"c:\temp\Proligent\sequence_document.txt"));
 var operation = new OperationRun(
     station: "Station/readme_example",
     sequences: new[] { sequence },
     name: "Operation1",
     status: ExecutionStatusKind.PASS
 );
-operation.AddDocument(new Document(@"c:\temp\Proligent\operation_document.txt"));
 var process = new ProcessRun(
     productUnitIdentifier: "DutSerialNumber",
     productFullName: "Product/readme_example",
@@ -49,7 +46,6 @@ var product = new ProductUnit(
     productFullName: "Product/readme_example",
     manufacturer: "Averna"
 );
-product.AddDocument(new Document(@"c:\temp\Proligent\product_document.txt"));
 var warehouse = new DataWareHouse(topProcess: process, productUnit: product);
 string example1File = warehouse.SaveXml(destinationFolder: destinationFolder);
 

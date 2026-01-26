@@ -129,4 +129,136 @@ public class DocumentCopyTests
             try { if (Directory.Exists(tempDest)) Directory.Delete(tempDest, recursive: true); } catch { }
         }
     }
+
+    // Negative scenarios
+
+    [Fact]
+    public void SaveXml_MissingSourceFile_ThrowsFileNotFoundException()
+    {
+        string tempSrc = Path.Combine(Path.GetTempPath(), "ProligentTests", Guid.NewGuid().ToString("N"));
+        string tempDest = Path.Combine(Path.GetTempPath(), "ProligentTestsDest", Guid.NewGuid().ToString("N"));
+
+        Directory.CreateDirectory(tempSrc);
+        Directory.CreateDirectory(tempDest);
+
+        string originalFileName = "missing_document.txt";
+        string sourcePath = Path.Combine(tempSrc, originalFileName);
+        // do not create the source file
+
+        try
+        {
+            var product = new ProductUnit(
+                productUnitIdentifier: "TestMissing",
+                productFullName: "Product/Test",
+                manufacturer: "Tester",
+                documents: new[] { new Document(sourcePath) }
+            );
+
+            var warehouse = new DataWareHouse(productUnit: product);
+
+            Assert.Throws<FileNotFoundException>(() => warehouse.SaveXml(destinationFolder: tempDest));
+        }
+        finally
+        {
+            try { if (Directory.Exists(tempSrc)) Directory.Delete(tempSrc, recursive: true); } catch { }
+            try { if (Directory.Exists(tempDest)) Directory.Delete(tempDest, recursive: true); } catch { }
+        }
+    }
+
+    [Fact]
+    public void SaveXml_NoDocumentElements_Succeeds_NoCopiesMade()
+    {
+        string tempDest = Path.Combine(Path.GetTempPath(), "ProligentTestsDest", Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(tempDest);
+
+        try
+        {
+            // Create a warehouse with no documents anywhere
+            var warehouse = new DataWareHouse();
+            string savedXml = warehouse.SaveXml(destinationFolder: tempDest);
+
+            Assert.True(File.Exists(savedXml), "Saved XML should exist.");
+
+            var copiedFiles = Directory.GetFiles(tempDest)
+                .Select(Path.GetFileName)
+                .Where(n => n.StartsWith("Document_", StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            Assert.Empty(copiedFiles);
+
+            var doc = XDocument.Load(savedXml);
+            var fileElems = doc.Descendants(XmlNamespaces.Dw + "Document").ToList();
+            Assert.Empty(fileElems);
+        }
+        finally
+        {
+            try { if (Directory.Exists(tempDest)) Directory.Delete(tempDest, recursive: true); } catch { }
+        }
+    }
+
+    [Fact]
+    public void SaveXml_DestinationFolderIsAFile_ThrowsIOException()
+    {
+        string tempParent = Path.Combine(Path.GetTempPath(), "ProligentTests", Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(tempParent);
+
+        string fileAsFolder = Path.Combine(tempParent, "marker.txt");
+        File.WriteAllText(fileAsFolder, "marker");
+
+        try
+        {
+            var product = new ProductUnit(
+                productUnitIdentifier: "Test",
+                productFullName: "Product/Test",
+                manufacturer: "Tester",
+                documents: Array.Empty<Document>()
+            );
+
+            var warehouse = new DataWareHouse(productUnit: product);
+
+            // If SaveXml attempts to create a directory with the same name as an existing file,
+            // Directory.CreateDirectory will throw an IOException.
+            Assert.ThrowsAny<IOException>(() => warehouse.SaveXml(destinationFolder: fileAsFolder));
+        }
+        finally
+        {
+            try { if (File.Exists(fileAsFolder)) File.Delete(fileAsFolder); } catch { }
+            try { if (Directory.Exists(tempParent)) Directory.Delete(tempParent, recursive: true); } catch { }
+        }
+    }
+
+    [Fact]
+    public void SaveXml_MixedExistingAndMissingDocuments_ThrowsFileNotFoundException()
+    {
+        string tempSrc = Path.Combine(Path.GetTempPath(), "ProligentTests", Guid.NewGuid().ToString("N"));
+        string tempDest = Path.Combine(Path.GetTempPath(), "ProligentTestsDest", Guid.NewGuid().ToString("N"));
+
+        Directory.CreateDirectory(tempSrc);
+        Directory.CreateDirectory(tempDest);
+
+        string existingFile = Path.Combine(tempSrc, "exists.txt");
+        string missingFile = Path.Combine(tempSrc, "does_not_exist.txt");
+        File.WriteAllText(existingFile, "exists-content");
+        // missingFile not created
+
+        try
+        {
+            var step = new StepRun(name: "StepMixed", status: ExecutionStatusKind.PASS);
+            step.AddDocument(new Document(existingFile));
+            step.AddDocument(new Document(missingFile));
+
+            var sequence = new SequenceRun(name: "SeqMixed", status: ExecutionStatusKind.PASS, steps: new[] { step });
+            var operation = new OperationRun(station: "Station/Mix", sequences: new[] { sequence }, name: "OpMix", status: ExecutionStatusKind.PASS);
+            var process = new ProcessRun(operations: new[] { operation }, name: "ProcMix", status: ExecutionStatusKind.PASS);
+
+            var warehouse = new DataWareHouse(topProcess: process);
+
+            Assert.Throws<FileNotFoundException>(() => warehouse.SaveXml(destinationFolder: tempDest));
+        }
+        finally
+        {
+            try { if (Directory.Exists(tempSrc)) Directory.Delete(tempSrc, recursive: true); } catch { }
+            try { if (Directory.Exists(tempDest)) Directory.Delete(tempDest, recursive: true); } catch { }
+        }
+    }
 }
