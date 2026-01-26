@@ -297,7 +297,10 @@ public abstract class Buildable
         Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(targetPath))!);
         var xml = ToXml(util);
         var doc = XDocument.Parse(xml);
-        CopyReferencedDocumentsAndRewrite(doc, Path.GetDirectoryName(Path.GetFullPath(targetPath))!);
+        CopyReferencedDocumentsAndRewrite(
+            doc,
+            Path.GetDirectoryName(Path.GetFullPath(targetPath))!
+        );
 
         var settings = new XmlWriterSettings
         {
@@ -328,9 +331,13 @@ public abstract class Buildable
             new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
     }
 
-    private static void CopyReferencedDocumentsAndRewrite(XDocument document, string destinationFolder)
+    private static void CopyReferencedDocumentsAndRewrite(
+        XDocument document,
+        string destinationFolder
+    )
     {
-        if (document is null) throw new ArgumentNullException(nameof(document));
+        ArgumentNullException.ThrowIfNull(document);
+
         if (string.IsNullOrWhiteSpace(destinationFolder))
             throw new ArgumentException("Destination folder required.", nameof(destinationFolder));
 
@@ -341,11 +348,14 @@ public abstract class Buildable
         {
             var fileAttr = docElem.Attribute("FileName");
             if (fileAttr is null)
-                continue; 
+                continue;
 
             var sourcePath = fileAttr.Value;
             if (string.IsNullOrWhiteSpace(sourcePath))
-                throw new ArgumentException("Document FileName attribute is empty.", nameof(document));
+                throw new ArgumentException(
+                    "Document FileName attribute is empty.",
+                    nameof(document)
+                );
 
             string resolvedSource = sourcePath;
             if (!File.Exists(resolvedSource))
@@ -356,23 +366,37 @@ public abstract class Buildable
                 }
                 catch (Exception ex)
                 {
-                    throw new ArgumentException($"Invalid document path: '{sourcePath}'.", nameof(document), ex);
+                    throw new ArgumentException(
+                        $"Invalid document path: '{sourcePath}'.",
+                        nameof(document),
+                        ex
+                    );
                 }
             }
 
             if (!File.Exists(resolvedSource))
             {
-                throw new FileNotFoundException($"Document source file not found: '{sourcePath}'", sourcePath);
+                throw new FileNotFoundException(
+                    $"Document source file not found: '{sourcePath}'",
+                    sourcePath
+                );
             }
 
-            if ((File.GetAttributes(resolvedSource) & FileAttributes.Directory) == FileAttributes.Directory)
+            if (
+                (File.GetAttributes(resolvedSource) & FileAttributes.Directory)
+                == FileAttributes.Directory
+            )
             {
-                throw new IOException($"Document source path is a directory, not a file: '{resolvedSource}'");
+                throw new IOException(
+                    $"Document source path is a directory, not a file: '{resolvedSource}'"
+                );
             }
 
             var originalFileName = Path.GetFileName(resolvedSource);
             if (string.IsNullOrWhiteSpace(originalFileName))
-                throw new InvalidOperationException($"Unable to determine filename for document: '{resolvedSource}'");
+                throw new InvalidOperationException(
+                    $"Unable to determine filename for document: '{resolvedSource}'"
+                );
 
             // Compute deterministic identifier using DocumentUniqueName; propagate if it fails.
             string documentId;
@@ -382,7 +406,10 @@ public abstract class Buildable
             }
             catch (Exception ex)
             {
-                throw new InvalidOperationException($"Failed to compute document identifier for '{resolvedSource}'.", ex);
+                throw new InvalidOperationException(
+                    $"Failed to compute document identifier for '{resolvedSource}'.",
+                    ex
+                );
             }
 
             var newFileName = $"Document_{documentId}_{originalFileName}";
@@ -394,14 +421,16 @@ public abstract class Buildable
             }
             catch (Exception ex)
             {
-                throw new IOException($"Failed to copy document '{resolvedSource}' to '{destPath}'.", ex);
+                throw new IOException(
+                    $"Failed to copy document '{resolvedSource}' to '{destPath}'.",
+                    ex
+                );
             }
 
             fileAttr.SetValue(newFileName);
             docElem.SetAttributeValue("Identifier", documentId);
         }
     }
-
 }
 
 /// <summary>Numeric boundaries that accompany a measurement.</summary>

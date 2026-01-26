@@ -8,8 +8,16 @@ public class DocumentCopyTests
     [Fact]
     public void SaveXml_CopiesAndRenames_ProductUnitDocument()
     {
-        string tempSrc = Path.Combine(Path.GetTempPath(), "ProligentTests", Guid.NewGuid().ToString("N"));
-        string tempDest = Path.Combine(Path.GetTempPath(), "ProligentTestsDest", Guid.NewGuid().ToString("N"));
+        string tempSrc = Path.Combine(
+            Path.GetTempPath(),
+            "ProligentTests",
+            Guid.NewGuid().ToString("N")
+        );
+        string tempDest = Path.Combine(
+            Path.GetTempPath(),
+            "ProligentTestsDest",
+            Guid.NewGuid().ToString("N")
+        );
 
         Directory.CreateDirectory(tempSrc);
         Directory.CreateDirectory(tempDest);
@@ -32,35 +40,64 @@ public class DocumentCopyTests
 
             Assert.True(File.Exists(savedXml), "Saved XML should exist.");
 
-            var copiedFiles = Directory.GetFiles(tempDest)
+            var copiedFiles = Directory
+                .GetFiles(tempDest)
                 .Select(Path.GetFileName)
-                .Where(n => n.StartsWith("Document_", StringComparison.OrdinalIgnoreCase) && n.EndsWith(originalFileName, StringComparison.OrdinalIgnoreCase))
+                .Where(n =>
+                    !string.IsNullOrWhiteSpace(n)
+                    && n.StartsWith("Document_", StringComparison.OrdinalIgnoreCase)
+                    && n.EndsWith(originalFileName, StringComparison.OrdinalIgnoreCase)
+                )
+                .Select(n => n!)
                 .ToList();
 
             Assert.Single(copiedFiles);
 
             string copiedFileName = copiedFiles.Single();
             string copiedPath = Path.Combine(tempDest, copiedFileName);
-            Assert.True(File.Exists(copiedPath), "Copied document should exist in destination folder.");
+            Assert.True(
+                File.Exists(copiedPath),
+                "Copied document should exist in destination folder."
+            );
             Assert.Equal("product-content", File.ReadAllText(copiedPath));
 
             var doc = XDocument.Load(savedXml);
-            var fileAttr = doc.Descendants(XmlNamespaces.Dw + "Document").First().Attribute("FileName");
+            var fileAttr = doc.Descendants(XmlNamespaces.Dw + "Document")
+                .First()
+                .Attribute("FileName");
             Assert.NotNull(fileAttr);
             Assert.Equal(copiedFileName, fileAttr!.Value);
         }
         finally
         {
-            try { if (Directory.Exists(tempSrc)) Directory.Delete(tempSrc, recursive: true); } catch { }
-            try { if (Directory.Exists(tempDest)) Directory.Delete(tempDest, recursive: true); } catch { }
+            try
+            {
+                if (Directory.Exists(tempSrc))
+                    Directory.Delete(tempSrc, recursive: true);
+            }
+            catch { }
+            try
+            {
+                if (Directory.Exists(tempDest))
+                    Directory.Delete(tempDest, recursive: true);
+            }
+            catch { }
         }
     }
 
     [Fact]
     public void SaveXml_CopiesAndRenames_MultipleNestedDocuments()
     {
-        string tempSrc = Path.Combine(Path.GetTempPath(), "ProligentTests", Guid.NewGuid().ToString("N"));
-        string tempDest = Path.Combine(Path.GetTempPath(), "ProligentTestsDest", Guid.NewGuid().ToString("N"));
+        string tempSrc = Path.Combine(
+            Path.GetTempPath(),
+            "ProligentTests",
+            Guid.NewGuid().ToString("N")
+        );
+        string tempDest = Path.Combine(
+            Path.GetTempPath(),
+            "ProligentTestsDest",
+            Guid.NewGuid().ToString("N")
+        );
 
         Directory.CreateDirectory(tempSrc);
         Directory.CreateDirectory(tempDest);
@@ -79,17 +116,31 @@ public class DocumentCopyTests
             sequence.AddStepRun(step);
             sequence.AddDocument(new Document(seqFile));
 
-            var operation = new OperationRun(station: "Station/Test", sequences: new[] { sequence }, name: "OpA", status: ExecutionStatusKind.PASS);
-            var process = new ProcessRun(operations: new[] { operation }, name: "ProcA", status: ExecutionStatusKind.PASS);
+            var operation = new OperationRun(
+                station: "Station/Test",
+                sequences: new[] { sequence },
+                name: "OpA",
+                status: ExecutionStatusKind.PASS
+            );
+            var process = new ProcessRun(
+                operations: new[] { operation },
+                name: "ProcA",
+                status: ExecutionStatusKind.PASS
+            );
 
             var warehouse = new DataWareHouse(topProcess: process);
             string savedXml = warehouse.SaveXml(destinationFolder: tempDest);
 
             Assert.True(File.Exists(savedXml), "Saved XML should exist.");
 
-            var copiedFiles = Directory.GetFiles(tempDest)
+            var copiedFiles = Directory
+                .GetFiles(tempDest)
                 .Select(Path.GetFileName)
-                .Where(n => n.StartsWith("Document_", StringComparison.OrdinalIgnoreCase))
+                .Where(n =>
+                    !string.IsNullOrWhiteSpace(n)
+                    && n.StartsWith("Document_", StringComparison.OrdinalIgnoreCase)
+                )
+                .Select(n => n!)
                 .ToList();
 
             // Expect two copied documents
@@ -107,26 +158,41 @@ public class DocumentCopyTests
             foreach (var attr in fileAttrs)
             {
                 Assert.Contains(attr, copiedFiles);
-                string fullCopied = Path.Combine(tempDest, attr);
-                Assert.True(File.Exists(fullCopied), $"Copied file {attr} should exist.");
-                if (attr.EndsWith("step_document.txt", StringComparison.OrdinalIgnoreCase))
+                if (attr != null)
                 {
-                    Assert.Equal("step-content", File.ReadAllText(fullCopied));
-                }
-                else if (attr.EndsWith("sequence_document.txt", StringComparison.OrdinalIgnoreCase))
-                {
-                    Assert.Equal("sequence-content", File.ReadAllText(fullCopied));
-                }
-                else
-                {
-                    Assert.True(false, $"Unexpected copied file name: {attr}");
+                    string fullCopied = Path.Combine(tempDest, attr);
+                    Assert.True(File.Exists(fullCopied), $"Copied file {attr} should exist.");
+                    if (attr.EndsWith("step_document.txt", StringComparison.OrdinalIgnoreCase))
+                    {
+                        Assert.Equal("step-content", File.ReadAllText(fullCopied));
+                    }
+                    else if (
+                        attr.EndsWith("sequence_document.txt", StringComparison.OrdinalIgnoreCase)
+                    )
+                    {
+                        Assert.Equal("sequence-content", File.ReadAllText(fullCopied));
+                    }
+                    else
+                    {
+                        Assert.Fail($"Unexpected copied file name: {attr}");
+                    }
                 }
             }
         }
         finally
         {
-            try { if (Directory.Exists(tempSrc)) Directory.Delete(tempSrc, recursive: true); } catch { }
-            try { if (Directory.Exists(tempDest)) Directory.Delete(tempDest, recursive: true); } catch { }
+            try
+            {
+                if (Directory.Exists(tempSrc))
+                    Directory.Delete(tempSrc, recursive: true);
+            }
+            catch { }
+            try
+            {
+                if (Directory.Exists(tempDest))
+                    Directory.Delete(tempDest, recursive: true);
+            }
+            catch { }
         }
     }
 
@@ -135,8 +201,16 @@ public class DocumentCopyTests
     [Fact]
     public void SaveXml_MissingSourceFile_ThrowsFileNotFoundException()
     {
-        string tempSrc = Path.Combine(Path.GetTempPath(), "ProligentTests", Guid.NewGuid().ToString("N"));
-        string tempDest = Path.Combine(Path.GetTempPath(), "ProligentTestsDest", Guid.NewGuid().ToString("N"));
+        string tempSrc = Path.Combine(
+            Path.GetTempPath(),
+            "ProligentTests",
+            Guid.NewGuid().ToString("N")
+        );
+        string tempDest = Path.Combine(
+            Path.GetTempPath(),
+            "ProligentTestsDest",
+            Guid.NewGuid().ToString("N")
+        );
 
         Directory.CreateDirectory(tempSrc);
         Directory.CreateDirectory(tempDest);
@@ -156,19 +230,35 @@ public class DocumentCopyTests
 
             var warehouse = new DataWareHouse(productUnit: product);
 
-            Assert.Throws<FileNotFoundException>(() => warehouse.SaveXml(destinationFolder: tempDest));
+            Assert.Throws<FileNotFoundException>(() =>
+                warehouse.SaveXml(destinationFolder: tempDest)
+            );
         }
         finally
         {
-            try { if (Directory.Exists(tempSrc)) Directory.Delete(tempSrc, recursive: true); } catch { }
-            try { if (Directory.Exists(tempDest)) Directory.Delete(tempDest, recursive: true); } catch { }
+            try
+            {
+                if (Directory.Exists(tempSrc))
+                    Directory.Delete(tempSrc, recursive: true);
+            }
+            catch { }
+            try
+            {
+                if (Directory.Exists(tempDest))
+                    Directory.Delete(tempDest, recursive: true);
+            }
+            catch { }
         }
     }
 
     [Fact]
     public void SaveXml_NoDocumentElements_Succeeds_NoCopiesMade()
     {
-        string tempDest = Path.Combine(Path.GetTempPath(), "ProligentTestsDest", Guid.NewGuid().ToString("N"));
+        string tempDest = Path.Combine(
+            Path.GetTempPath(),
+            "ProligentTestsDest",
+            Guid.NewGuid().ToString("N")
+        );
         Directory.CreateDirectory(tempDest);
 
         try
@@ -179,9 +269,14 @@ public class DocumentCopyTests
 
             Assert.True(File.Exists(savedXml), "Saved XML should exist.");
 
-            var copiedFiles = Directory.GetFiles(tempDest)
+            var copiedFiles = Directory
+                .GetFiles(tempDest)
                 .Select(Path.GetFileName)
-                .Where(n => n.StartsWith("Document_", StringComparison.OrdinalIgnoreCase))
+                .Where(n =>
+                    !string.IsNullOrWhiteSpace(n)
+                    && n.StartsWith("Document_", StringComparison.OrdinalIgnoreCase)
+                )
+                .Select(n => n!)
                 .ToList();
 
             Assert.Empty(copiedFiles);
@@ -192,14 +287,23 @@ public class DocumentCopyTests
         }
         finally
         {
-            try { if (Directory.Exists(tempDest)) Directory.Delete(tempDest, recursive: true); } catch { }
+            try
+            {
+                if (Directory.Exists(tempDest))
+                    Directory.Delete(tempDest, recursive: true);
+            }
+            catch { }
         }
     }
 
     [Fact]
     public void SaveXml_DestinationFolderIsAFile_ThrowsIOException()
     {
-        string tempParent = Path.Combine(Path.GetTempPath(), "ProligentTests", Guid.NewGuid().ToString("N"));
+        string tempParent = Path.Combine(
+            Path.GetTempPath(),
+            "ProligentTests",
+            Guid.NewGuid().ToString("N")
+        );
         Directory.CreateDirectory(tempParent);
 
         string fileAsFolder = Path.Combine(tempParent, "marker.txt");
@@ -222,16 +326,34 @@ public class DocumentCopyTests
         }
         finally
         {
-            try { if (File.Exists(fileAsFolder)) File.Delete(fileAsFolder); } catch { }
-            try { if (Directory.Exists(tempParent)) Directory.Delete(tempParent, recursive: true); } catch { }
+            try
+            {
+                if (File.Exists(fileAsFolder))
+                    File.Delete(fileAsFolder);
+            }
+            catch { }
+            try
+            {
+                if (Directory.Exists(tempParent))
+                    Directory.Delete(tempParent, recursive: true);
+            }
+            catch { }
         }
     }
 
     [Fact]
     public void SaveXml_MixedExistingAndMissingDocuments_ThrowsFileNotFoundException()
     {
-        string tempSrc = Path.Combine(Path.GetTempPath(), "ProligentTests", Guid.NewGuid().ToString("N"));
-        string tempDest = Path.Combine(Path.GetTempPath(), "ProligentTestsDest", Guid.NewGuid().ToString("N"));
+        string tempSrc = Path.Combine(
+            Path.GetTempPath(),
+            "ProligentTests",
+            Guid.NewGuid().ToString("N")
+        );
+        string tempDest = Path.Combine(
+            Path.GetTempPath(),
+            "ProligentTestsDest",
+            Guid.NewGuid().ToString("N")
+        );
 
         Directory.CreateDirectory(tempSrc);
         Directory.CreateDirectory(tempDest);
@@ -247,18 +369,43 @@ public class DocumentCopyTests
             step.AddDocument(new Document(existingFile));
             step.AddDocument(new Document(missingFile));
 
-            var sequence = new SequenceRun(name: "SeqMixed", status: ExecutionStatusKind.PASS, steps: new[] { step });
-            var operation = new OperationRun(station: "Station/Mix", sequences: new[] { sequence }, name: "OpMix", status: ExecutionStatusKind.PASS);
-            var process = new ProcessRun(operations: new[] { operation }, name: "ProcMix", status: ExecutionStatusKind.PASS);
+            var sequence = new SequenceRun(
+                name: "SeqMixed",
+                status: ExecutionStatusKind.PASS,
+                steps: new[] { step }
+            );
+            var operation = new OperationRun(
+                station: "Station/Mix",
+                sequences: new[] { sequence },
+                name: "OpMix",
+                status: ExecutionStatusKind.PASS
+            );
+            var process = new ProcessRun(
+                operations: new[] { operation },
+                name: "ProcMix",
+                status: ExecutionStatusKind.PASS
+            );
 
             var warehouse = new DataWareHouse(topProcess: process);
 
-            Assert.Throws<FileNotFoundException>(() => warehouse.SaveXml(destinationFolder: tempDest));
+            Assert.Throws<FileNotFoundException>(() =>
+                warehouse.SaveXml(destinationFolder: tempDest)
+            );
         }
         finally
         {
-            try { if (Directory.Exists(tempSrc)) Directory.Delete(tempSrc, recursive: true); } catch { }
-            try { if (Directory.Exists(tempDest)) Directory.Delete(tempDest, recursive: true); } catch { }
+            try
+            {
+                if (Directory.Exists(tempSrc))
+                    Directory.Delete(tempSrc, recursive: true);
+            }
+            catch { }
+            try
+            {
+                if (Directory.Exists(tempDest))
+                    Directory.Delete(tempDest, recursive: true);
+            }
+            catch { }
         }
     }
 }

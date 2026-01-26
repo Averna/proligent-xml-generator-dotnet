@@ -22,8 +22,7 @@ namespace Proligent.XmlGenerator
         /// </summary>
         public static string FromFilePath(string filePath)
         {
-            if (filePath is null)
-                throw new ArgumentNullException(nameof(filePath));
+            ArgumentNullException.ThrowIfNull(filePath);
 
             string fileName = Path.GetFileName(filePath);
             if (string.IsNullOrWhiteSpace(fileName))
@@ -62,7 +61,10 @@ namespace Proligent.XmlGenerator
 
             // Guardrail: filename only, no path separators
             if (s.Contains('/') || s.Contains('\\'))
-                throw new ArgumentException("Filename must not contain path separators.", nameof(fileName));
+                throw new ArgumentException(
+                    "Filename must not contain path separators.",
+                    nameof(fileName)
+                );
 
             return s;
         }
@@ -87,17 +89,18 @@ namespace Proligent.XmlGenerator
         /// </summary>
         private static string ToUuidStringNetworkOrder(byte[] b)
         {
-            if (b is null) throw new ArgumentNullException(nameof(b));
+            ArgumentNullException.ThrowIfNull(b);
+
             if (b.Length != 16)
                 throw new ArgumentException("UUID byte array must be exactly 16 bytes.", nameof(b));
 
             return string.Create(
                 CultureInfo.InvariantCulture,
-                $"{b[0]:x2}{b[1]:x2}{b[2]:x2}{b[3]:x2}" +
-                $"-{b[4]:x2}{b[5]:x2}" +
-                $"-{b[6]:x2}{b[7]:x2}" +
-                $"-{b[8]:x2}{b[9]:x2}" +
-                $"-{b[10]:x2}{b[11]:x2}{b[12]:x2}{b[13]:x2}{b[14]:x2}{b[15]:x2}"
+                $"{b[0]:x2}{b[1]:x2}{b[2]:x2}{b[3]:x2}"
+                    + $"-{b[4]:x2}{b[5]:x2}"
+                    + $"-{b[6]:x2}{b[7]:x2}"
+                    + $"-{b[8]:x2}{b[9]:x2}"
+                    + $"-{b[10]:x2}{b[11]:x2}{b[12]:x2}{b[13]:x2}{b[14]:x2}{b[15]:x2}"
             );
         }
     }
