@@ -27,4 +27,3 @@ docker run -it --rm -v "${PWD}:/tmp/lint" oxsecurity/megalinter:v9
 - Ensure version bump in `Proligent.XmlGenerator.csproj`.
 - `dotnet test` passes.
 - Publish to NuGet with `dotnet pack` then `dotnet nuget push` using `NUGET_API_KEY`.
-

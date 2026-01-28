@@ -26,14 +26,12 @@ var step = new StepRun(name: "Step1", status: ExecutionStatusKind.PASS, measure:
 
 var sequence = new SequenceRun(name: "Sequence1", status: ExecutionStatusKind.PASS);
 sequence.AddStepRun(step);
-
 var operation = new OperationRun(
     station: "Station/readme_example",
     sequences: new[] { sequence },
     name: "Operation1",
     status: ExecutionStatusKind.PASS
 );
-
 var process = new ProcessRun(
     productUnitIdentifier: "DutSerialNumber",
     productFullName: "Product/readme_example",
@@ -48,7 +46,6 @@ var product = new ProductUnit(
     productFullName: "Product/readme_example",
     manufacturer: "Averna"
 );
-
 var warehouse = new DataWareHouse(topProcess: process, productUnit: product);
 string example1File = warehouse.SaveXml(destinationFolder: destinationFolder);
 

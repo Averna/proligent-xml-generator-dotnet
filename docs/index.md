@@ -10,4 +10,3 @@ The library bundling XSD validation and IntelliSense-ready XML documentation.
 Get started with the [Quickstart](user/quickstart.md) or review the
 [Manufacturing Information Model](user/manufacturing-information-model.md) for
 data mapping guidance.
-

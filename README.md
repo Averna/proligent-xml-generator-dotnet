@@ -152,4 +152,3 @@ Proligent is a registered trademark, and Averna is a trademark, of [Averna Techn
 
 Other product and company names mentioned herein are trademarks or trade names
 of their respective companies.
-

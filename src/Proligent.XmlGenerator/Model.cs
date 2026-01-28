@@ -296,11 +296,32 @@ public abstract class Buildable
 
         Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(targetPath))!);
         var xml = ToXml(util);
+        var doc = XDocument.Parse(xml);
+        CopyReferencedDocumentsAndRewrite(
+            doc,
+            Path.GetDirectoryName(Path.GetFullPath(targetPath))!
+        );
+
+        var settings = new XmlWriterSettings
+        {
+            Encoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false),
+            Indent = true,
+            IndentChars = "  ",
+            OmitXmlDeclaration = false,
+        };
+
+        using var writer = new Utf8StringWriter();
+        using (var xmlWriter = XmlWriter.Create(writer, settings))
+        {
+            doc.Save(xmlWriter);
+        }
+
         File.WriteAllText(
             targetPath,
-            xml,
+            writer.ToString(),
             new UTF8Encoding(encoderShouldEmitUTF8Identifier: false)
         );
+
         return targetPath;
     }
 
@@ -308,6 +329,107 @@ public abstract class Buildable
     {
         public override Encoding Encoding =>
             new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
+    }
+
+    private static void CopyReferencedDocumentsAndRewrite(
+        XDocument document,
+        string destinationFolder
+    )
+    {
+        ArgumentNullException.ThrowIfNull(document);
+
+        if (string.IsNullOrWhiteSpace(destinationFolder))
+            throw new ArgumentException("Destination folder required.", nameof(destinationFolder));
+
+        Directory.CreateDirectory(destinationFolder);
+
+        var docElements = document.Descendants(XmlNamespaces.Dw + "Document").ToList();
+        foreach (var docElem in docElements)
+        {
+            var fileAttr = docElem.Attribute("FileName");
+            if (fileAttr is null)
+                continue;
+
+            var sourcePath = fileAttr.Value;
+            if (string.IsNullOrWhiteSpace(sourcePath))
+                throw new ArgumentException(
+                    "Document FileName attribute is empty.",
+                    nameof(document)
+                );
+
+            string resolvedSource = sourcePath;
+            if (!File.Exists(resolvedSource))
+            {
+                try
+                {
+                    resolvedSource = Path.GetFullPath(sourcePath);
+                }
+                catch (Exception ex)
+                {
+                    throw new ArgumentException(
+                        $"Invalid document path: '{sourcePath}'.",
+                        nameof(document),
+                        ex
+                    );
+                }
+            }
+
+            if (!File.Exists(resolvedSource))
+            {
+                throw new FileNotFoundException(
+                    $"Document source file not found: '{sourcePath}'",
+                    sourcePath
+                );
+            }
+
+            if (
+                (File.GetAttributes(resolvedSource) & FileAttributes.Directory)
+                == FileAttributes.Directory
+            )
+            {
+                throw new IOException(
+                    $"Document source path is a directory, not a file: '{resolvedSource}'"
+                );
+            }
+
+            var originalFileName = Path.GetFileName(resolvedSource);
+            if (string.IsNullOrWhiteSpace(originalFileName))
+                throw new InvalidOperationException(
+                    $"Unable to determine filename for document: '{resolvedSource}'"
+                );
+
+            // Compute deterministic identifier using DocumentUniqueName; propagate if it fails.
+            string documentId;
+            try
+            {
+                documentId = DocumentUniqueName.FromFilePath(resolvedSource);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException(
+                    $"Failed to compute document identifier for '{resolvedSource}'.",
+                    ex
+                );
+            }
+
+            var newFileName = $"Document_{documentId}_{originalFileName}";
+            var destPath = Path.Combine(destinationFolder, newFileName);
+
+            try
+            {
+                File.Copy(resolvedSource, destPath, overwrite: true);
+            }
+            catch (Exception ex)
+            {
+                throw new IOException(
+                    $"Failed to copy document '{resolvedSource}' to '{destPath}'.",
+                    ex
+                );
+            }
+
+            fileAttr.SetValue(newFileName);
+            docElem.SetAttributeValue("Identifier", documentId);
+        }
     }
 }
 
@@ -435,6 +557,12 @@ public sealed class Characteristic : Buildable
 public sealed class Document : Buildable
 {
     /// <summary>Create a new document reference.</summary>
+    /// <param name="fileName">Path or filename of the attached document.</param>
+    /// <param name="identifier">Optional GUID for the document. If provided, the
+    /// output file will use this GUID; if omitted, a GUID will be generated by the
+    /// standard generator.</param>
+    /// <param name="name">Optional human-readable identifier stored in Name.</param>
+    /// <param name="description">Optional description persisted to Description.</param>
     public Document(
         string fileName,
         string? identifier = null,
