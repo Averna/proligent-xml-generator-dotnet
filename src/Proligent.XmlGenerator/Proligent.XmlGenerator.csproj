@@ -10,7 +10,7 @@
     <AssemblyName>Proligent.XmlGenerator</AssemblyName>
     <RootNamespace>Proligent.XmlGenerator</RootNamespace>
     <Version>1.1.0</Version>
-    <Authors>Ben Engelen;Kaitlin Van de Kerckhove;Philippe Gaclinas;Mathieu Balanger;Marian Mindek</Authors>
+    <Authors>Philippe Gélinas;Mathieu Bélanger;Marian Mindek</Authors>
     <Company>Averna Technologies Inc.</Company>
     <Product>Proligent XML Generator</Product>
     <Description>.NET library for generating Proligent XML payloads for Proligent Cloud and Analytics.</Description>
