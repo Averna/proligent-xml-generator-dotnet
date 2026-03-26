@@ -27,7 +27,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
       - name: Run Mega-Linter
-        uses: oxsecurity/megalinter@v9.1.0
+        uses: oxsecurity/megalinter@v9.4.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
