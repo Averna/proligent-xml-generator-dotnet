@@ -125,119 +125,6 @@ public record ValidationMetadata(
     int? Column = null
 );
 
-/// <summary>
-/// Convenience helpers for building Datawarehouse payloads: time formatting,
-/// UUID generation, and XML validation.
-/// </summary>
-public class Util
-{
-    private readonly string _schemaPath;
-
-    /// <summary>Shared utility instance used when callers do not supply their own.</summary>
-    public static Util Default { get; set; } = new Util();
-
-    /// <summary>Delegate that generates UUID strings; override in tests to get deterministic values.</summary>
-    public Func<string> UuidFactory { get; set; } = () => Guid.NewGuid().ToString();
-
-    /// <summary>
-    /// Configured time zone for naive DateTime values. When null, the machine time zone is used.
-    /// </summary>
-    public TimeZoneInfo? TimeZone { get; set; }
-
-    /// <summary>
-    /// Default folder where <see cref="Buildable.SaveXml" /> writes files when no destination is provided.
-    /// Matches the Integration Service pickup directory used by Proligent deployments.
-    /// </summary>
-    public string DestinationDirectory { get; set; }
-
-    /// <summary>Optional override path to the Datawarehouse XSD used during validation.</summary>
-    public string SchemaPath => _schemaPath;
-
-    /// <summary>
-    /// Create a new utility container.
-    /// </summary>
-    /// <param name="timeZone">Optional time zone for naive DateTime inputs.</param>
-    /// <param name="destinationDirectory">Optional default output directory for generated XML.</param>
-    /// <param name="schemaPath">Optional path to a custom Datawarehouse XSD.</param>
-    /// <param name="timeZoneId">IANA/Windows TimeZone IDs.</param>
-    public Util(
-        TimeZoneInfo? timeZone = null,
-        string? destinationDirectory = null,
-        string? schemaPath = null,
-        string? timeZoneId = null
-    )
-    {
-        TimeZone =
-            timeZone
-            ?? (timeZoneId is not null ? TimeZoneInfo.FindSystemTimeZoneById(timeZoneId) : null);
-        DestinationDirectory =
-            destinationDirectory ?? @"C:\Proligent\IntegrationService\Acquisition";
-        _schemaPath =
-            schemaPath ?? Path.Combine(AppContext.BaseDirectory, "Xsd", "Datawarehouse.xsd");
-    }
-
-    /// <summary>
-    /// Convert a <see cref="DateTime" /> into the ISO-8601 string the Datawarehouse schema expects.
-    /// Naive timestamps are localized using <see cref="TimeZone" /> or the machine time zone.
-    /// </summary>
-    /// <param name="dateTime">Time to serialize; defaults to now.</param>
-    public string FormatDateTime(DateTime? dateTime = null)
-    {
-        var instant = dateTime ?? DateTime.Now;
-        var targetZone = ResolveTimeZone();
-        DateTimeOffset offsetTime;
-
-        if (instant.Kind == DateTimeKind.Unspecified)
-        {
-            var offset = targetZone.GetUtcOffset(instant);
-            offsetTime = new DateTimeOffset(instant, offset);
-        }
-        else
-        {
-            offsetTime = new DateTimeOffset(instant);
-            offsetTime = TimeZoneInfo.ConvertTime(offsetTime, targetZone);
-        }
-
-        return offsetTime.ToString("yyyy-MM-ddTHH:mm:sszzz", CultureInfo.InvariantCulture);
-    }
-
-    /// <summary>
-    /// Convert a <see cref="DateTimeOffset" /> into the ISO-8601 string the Datawarehouse schema expects.
-    /// </summary>
-    public string FormatDateTime(DateTimeOffset dateTime)
-    {
-        var targetZone = ResolveTimeZone();
-        var converted = TimeZoneInfo.ConvertTime(dateTime, targetZone);
-        return converted.ToString("yyyy-MM-ddTHH:mm:sszzz", CultureInfo.InvariantCulture);
-    }
-
-    /// <summary>Generate a unique identifier suitable for Datawarehouse element IDs.</summary>
-    public string Uuid() => UuidFactory();
-
-    /// <summary>Set the timezone using an IANA or Windows identifier.</summary>
-    public void SetTimeZone(string timeZoneId) =>
-        TimeZone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
-
-    /// <summary>Validate an XML file against the Datawarehouse schema.</summary>
-    public void ValidateXml(string xmlFile) => XmlValidator.ValidateXml(xmlFile, SchemaPath);
-
-    /// <summary>
-    /// Validate an XML file against the Datawarehouse schema returning metadata instead of throwing.
-    /// </summary>
-    public ValidationMetadata ValidateXmlSafe(string xmlFile) =>
-        XmlValidator.ValidateXmlSafe(xmlFile, SchemaPath);
-
-    private TimeZoneInfo ResolveTimeZone()
-    {
-        if (TimeZone != null)
-        {
-            return TimeZone;
-        }
-
-        return TimeZoneInfo.Local;
-    }
-}
-
 /// <summary>Base class for objects that can produce Datawarehouse XML payloads.</summary>
 public abstract class Buildable
 {
@@ -1236,12 +1123,24 @@ public sealed class ProcessRun : VersionedManufacturingStep
         DateTime? startTime = null,
         DateTime? endTime = null
     )
-        : base(id, name, version, status, startTime, endTime)
+        : base(id ?? string.Empty, name, version, status, startTime, endTime)
     {
         ProductUnitIdentifier = productUnitIdentifier ?? Util.Default.Uuid();
         ProductFullName = productFullName ?? "DUT";
         Operations = (operations ?? Array.Empty<OperationRun>()).ToList();
         ProcessMode = processMode ?? string.Empty;
+    }
+
+    /// <summary>
+    /// Optional explicit process run ID written to ProcessRunId.
+    ///
+    /// When null, Build() automatically uses IdDeterministic recomputed from the
+    /// current field values.
+    /// </summary>
+    public new string? Id
+    {
+        get => string.IsNullOrEmpty(base.Id) ? null : base.Id;
+        set => base.Id = value ?? string.Empty;
     }
 
     /// <summary>Identifier stored in ProductUnitIdentifier.</summary>
@@ -1256,10 +1155,22 @@ public sealed class ProcessRun : VersionedManufacturingStep
     /// <summary>Optional process mode string persisted to ProcessMode.</summary>
     public string ProcessMode { get; set; }
 
+    /// <summary>
+    /// Deterministic process run ID computed from product/process fields and process mode.
+    /// </summary>
+    public string IdDeterministic => BuildDeterministicProcessRunId(
+        ProductFullName,
+        ProductUnitIdentifier,
+        Name,
+        Version,
+        ProcessMode
+    );
+
     /// <inheritdoc />
     public override XElement Build(Util? util = null)
     {
         util ??= Util.Default;
+        string processRunId = Id ?? IdDeterministic;
 
         foreach (var operation in Operations)
         {
@@ -1273,7 +1184,7 @@ public sealed class ProcessRun : VersionedManufacturingStep
 
         var process = new XElement(
             XmlNamespaces.Dw + "TopProcessRun",
-            new XAttribute("ProcessRunId", Id),
+            new XAttribute("ProcessRunId", processRunId),
             new XAttribute("ProductUnitIdentifier", ProductUnitIdentifier),
             new XAttribute("ProductFullName", ProductFullName),
             new XAttribute("ProcessRunStartTime", util.FormatDateTime(StartTime))
@@ -1307,6 +1218,29 @@ public sealed class ProcessRun : VersionedManufacturingStep
         }
 
         return process;
+    }
+
+    /// <summary>
+    /// Build a deterministic process ID from product/process fields and process mode.
+    /// </summary>
+    public static string BuildDeterministicProcessRunId(
+        string? productFullName,
+        string? identifier,
+        string? processFullName,
+        string? processVersion,
+        string? processMode
+    )
+    {
+        string normalizedProductFullName = productFullName ?? string.Empty;
+        string normalizedIdentifier = identifier ?? string.Empty;
+        string normalizedProcessFullName = processFullName ?? string.Empty;
+        string normalizedProcessVersion = processVersion ?? string.Empty;
+        string normalizedProcessMode = processMode ?? string.Empty;
+
+        string inputText =
+            $"{normalizedProductFullName}-{normalizedIdentifier}-{normalizedProcessFullName}-{normalizedProcessVersion}-{normalizedProcessMode}";
+
+        return Util.GetDeterministicGuid(inputText);
     }
 
     /// <summary>Append an operation run that will be serialized within operation_run.</summary>
