@@ -16,12 +16,11 @@ var limit = new Limit(
     lowerBound: 100,
     higherBound: 120
 );
-var measure = new Measure(
-    value: 111,
-    status: ExecutionStatusKind.PASS,
-    limit: limit,
-    time: DateTime.UtcNow
-);
+var measure = Measure.Create(111, new MeasureOptions(
+    Status: ExecutionStatusKind.PASS,
+    Limit: limit,
+    Time: DateTime.UtcNow
+));
 var step = new StepRun(name: "Step1", status: ExecutionStatusKind.PASS, measure: measure);
 
 var sequence = new SequenceRun(name: "Sequence1", status: ExecutionStatusKind.PASS);
@@ -89,16 +88,15 @@ sequence2.AddStepRun(
     new StepRun(
         name: "Step2",
         status: ExecutionStatusKind.PASS,
-        measure: new Measure(
-            value: 222,
-            time: DateTime.UtcNow,
-            status: ExecutionStatusKind.PASS,
-            limit: new Limit(
+        measure: Measure.Create(222, new MeasureOptions(
+            Time: DateTime.UtcNow,
+            Status: ExecutionStatusKind.PASS,
+            Limit: new Limit(
                 LimitExpression.LOWERBOUND_LEQ_X_LE_HIGHER_BOUND,
                 lowerBound: 200,
                 higherBound: 250
             )
-        )
+        ))
     )
 );
 

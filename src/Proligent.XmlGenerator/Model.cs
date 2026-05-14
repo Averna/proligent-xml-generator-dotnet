@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
+// ReSharper disable InconsistentNaming
 
 namespace Proligent.XmlGenerator;
 
@@ -481,8 +482,8 @@ public sealed class Document : Buildable
         return new XElement(
             XmlNamespaces.Dw + "Document",
             new XAttribute("Identifier", Identifier),
-            new XAttribute("FileName", FileName),
             string.IsNullOrWhiteSpace(Name) ? null : new XAttribute("Name", Name),
+            new XAttribute("FileName", FileName),
             string.IsNullOrWhiteSpace(Description)
                 ? null
                 : new XAttribute("Description", Description)
@@ -567,30 +568,101 @@ public abstract class VersionedManufacturingStep : ManufacturingStep
 /// <summary>
 /// Measurement captured during a step run, mapped to the Measure element.
 /// </summary>
-public sealed class Measure : Buildable
+public interface IMeasure
 {
-    private readonly object _value;
+    /// <summary>Unique identifier written to MeasureId.</summary>
+    string Id { get; }
+
+    /// <summary>Optional numeric bounds.</summary>
+    Limit? Limit { get; }
+
+    /// <summary>Timestamp describing when the value was acquired.</summary>
+    DateTime? Time { get; }
+
+    /// <summary>Free-form note written to the Comments attribute.</summary>
+    string Comments { get; }
+
+    /// <summary>Engineering unit name persisted to Unit.</summary>
+    string Unit { get; }
+
+    /// <summary>Unit symbol stored in Symbol.</summary>
+    string Symbol { get; }
+
+    /// <summary>Execution status emitted as MeasureExecutionStatus.</summary>
+    ExecutionStatusKind? Status { get; }
+
+    /// <summary>
+    /// Build the XML element that mirrors the Datawarehouse schema element for this object.
+    /// </summary>
+    XElement Build(Util? util = null);
+}
+
+/// <summary>Optional configuration shared by all <see cref="Measure{T}"/> overloads.</summary>
+public record MeasureOptions(
+    string? Id = null,
+    Limit? Limit = null,
+    DateTime? Time = null,
+    string? Comments = null,
+    string? Unit = null,
+    string? Symbol = null,
+    ExecutionStatusKind? Status = null,
+    int? Precision = null
+);
+
+/// <summary>Factory methods for creating strongly-typed <see cref="Measure{T}"/> instances.</summary>
+public static class Measure
+{
+    /// <summary>Create a measurement with an <see cref="int"/> value.</summary>
+    public static Measure<int> Create(int value, MeasureOptions? options = null) => new(value, options);
+
+    /// <summary>Create a measurement with a <see cref="long"/> value.</summary>
+    public static Measure<long> Create(long value, MeasureOptions? options = null) => new(value, options);
+
+    /// <summary>Create a measurement with a <see cref="float"/> value.</summary>
+    public static Measure<float> Create(float value, MeasureOptions? options = null) => new(value, options);
+
+    /// <summary>Create a measurement with a <see cref="double"/> value.</summary>
+    public static Measure<double> Create(double value, MeasureOptions? options = null) => new(value, options);
+
+    /// <summary>Create a measurement with a <see cref="decimal"/> value.</summary>
+    public static Measure<decimal> Create(decimal value, MeasureOptions? options = null) => new(value, options);
+
+    /// <summary>Create a measurement with a <see cref="bool"/> value.</summary>
+    public static Measure<bool> Create(bool value, MeasureOptions? options = null) => new(value, options);
+
+    /// <summary>Create a measurement with a <see cref="string"/> value.</summary>
+    public static Measure<string> Create(string value, MeasureOptions? options = null) => new(value, options);
+
+    /// <summary>Create a measurement with a <see cref="DateTime"/> value.</summary>
+    public static Measure<DateTime> Create(DateTime value, MeasureOptions? options = null) => new(value, options);
+
+    /// <summary>Create a measurement with a <see cref="DateTimeOffset"/> value.</summary>
+    public static Measure<DateTimeOffset> Create(DateTimeOffset value, MeasureOptions? options = null) => new(value, options);
+}
+
+/// <summary>
+/// Measurement captured during a step run, mapped to the Measure element.
+/// </summary>
+public sealed class Measure<T> : Buildable, IMeasure
+{
+    private readonly T _value;
 
     /// <summary>Create a new measurement.</summary>
-    public Measure(
-        object value,
-        string? id = null,
-        Limit? limit = null,
-        DateTime? time = null,
-        string? comments = null,
-        string? unit = null,
-        string? symbol = null,
-        ExecutionStatusKind? status = null
-    )
+    internal Measure(T value, MeasureOptions? options = null)
     {
+        // Calling this will make sure the type of T is supported, otherwise it throws an exception
+        NormalizeValue(value);
+
+        options ??= new MeasureOptions();
         _value = value;
-        Id = id ?? Util.Default.Uuid();
-        Limit = limit;
-        Time = time ?? DateTime.Now;
-        Comments = comments ?? string.Empty;
-        Unit = unit ?? string.Empty;
-        Symbol = symbol ?? string.Empty;
-        Status = status;
+        Id = options.Id ?? Util.Default.Uuid();
+        Limit = options.Limit;
+        Time = options.Time ?? DateTime.Now;
+        Comments = options.Comments ?? string.Empty;
+        Unit = options.Unit ?? string.Empty;
+        Symbol = options.Symbol ?? string.Empty;
+        Status = options.Status;
+        Precision = options.Precision;
     }
 
     /// <summary>Unique identifier written to MeasureId.</summary>
@@ -614,6 +686,9 @@ public sealed class Measure : Buildable
     /// <summary>Execution status emitted as MeasureExecutionStatus.</summary>
     public ExecutionStatusKind? Status { get; }
 
+    /// <summary>Optional number of significant digits written to the Precision attribute of the Value element.</summary>
+    public int? Precision { get; }
+
     /// <inheritdoc />
     public override XElement Build(Util? util = null)
     {
@@ -622,34 +697,19 @@ public sealed class Measure : Buildable
         var measureElement = new XElement(
             XmlNamespaces.Dw + "Measure",
             new XAttribute("MeasureId", Id),
-            new XAttribute("MeasureTime", util.FormatDateTime(Time))
+            new XAttribute("MeasureTime", util.FormatDateTime(Time)),
+            string.IsNullOrWhiteSpace(Unit) ? null : new XAttribute("Unit", Unit),
+            string.IsNullOrWhiteSpace(Symbol) ? null : new XAttribute("Symbol", Symbol),
+            Status.HasValue ? new XAttribute("MeasureExecutionStatus", Status.Value) : null,
+            string.IsNullOrWhiteSpace(Comments) ? null : new XAttribute("Comments", Comments)
         );
-
-        if (Status.HasValue)
-        {
-            measureElement.Add(new XAttribute("MeasureExecutionStatus", Status.Value));
-        }
-
-        if (!string.IsNullOrWhiteSpace(Comments))
-        {
-            measureElement.Add(new XAttribute("Comments", Comments));
-        }
-
-        if (!string.IsNullOrWhiteSpace(Unit))
-        {
-            measureElement.Add(new XAttribute("Unit", Unit));
-        }
-
-        if (!string.IsNullOrWhiteSpace(Symbol))
-        {
-            measureElement.Add(new XAttribute("Symbol", Symbol));
-        }
 
         var (stringValue, measureKind) = NormalizeValue(_value);
         measureElement.Add(
             new XElement(
                 XmlNamespaces.Dw + "Value",
                 new XAttribute("Type", measureKind),
+                Precision.HasValue ? new XAttribute("Precision", Precision.Value) : null,
                 stringValue
             )
         );
@@ -667,7 +727,7 @@ public sealed class Measure : Buildable
         return measureElement;
     }
 
-    private static (string Value, MeasureKind Kind) NormalizeValue(object value)
+    private static (string Value, MeasureKind Kind) NormalizeValue(T value)
     {
         switch (value)
         {
@@ -696,7 +756,7 @@ public sealed class Measure : Buildable
                     MeasureKind.DATETIME
                 );
             default:
-                throw new ArgumentException("Incompatible value type for Measure.");
+                throw new ArgumentException($"Type {typeof(T).Name} is not supported by Measure<T>.");
         }
     }
 }
@@ -706,11 +766,11 @@ public sealed class Measure : Buildable
 /// </summary>
 public sealed class StepRun : ManufacturingStep
 {
-    private readonly List<Measure> _measures = new();
+    private readonly List<IMeasure> _measures = new();
 
     /// <summary>Create a step run.</summary>
     public StepRun(
-        Measure? measure = null,
+        IMeasure? measure = null,
         string? id = null,
         string? name = null,
         ExecutionStatusKind status = ExecutionStatusKind.NOT_COMPLETED,
@@ -743,21 +803,14 @@ public sealed class StepRun : ManufacturingStep
         util ??= Util.Default;
         var step = new XElement(
             XmlNamespaces.Dw + "StepRun",
+            new XAttribute("StepExecutionStatus", Status),
             new XAttribute("StepRunId", Id),
-            new XAttribute("StartDate", util.FormatDateTime(StartTime))
+            string.IsNullOrWhiteSpace(Name) ? null : new XAttribute("StepName", Name),
+            new XAttribute("StartDate", util.FormatDateTime(StartTime)),
+            Status != ExecutionStatusKind.NOT_COMPLETED
+                ? new XAttribute("EndDate", util.FormatDateTime(EndTime))
+                : null
         );
-
-        if (Status != ExecutionStatusKind.NOT_COMPLETED)
-        {
-            step.Add(new XAttribute("EndDate", util.FormatDateTime(EndTime)));
-        }
-
-        if (!string.IsNullOrWhiteSpace(Name))
-        {
-            step.Add(new XAttribute("StepName", Name));
-        }
-
-        step.Add(new XAttribute("StepExecutionStatus", Status));
 
         foreach (var measure in _measures)
         {
@@ -780,7 +833,7 @@ public sealed class StepRun : ManufacturingStep
     /// <summary>
     /// Attach a measurement that will be emitted inside this StepRun's measure collection.
     /// </summary>
-    public Measure AddMeasure(Measure measure)
+    public IMeasure AddMeasure(IMeasure measure)
     {
         _measures.Add(measure);
         return measure;
@@ -879,32 +932,17 @@ public sealed class SequenceRun : VersionedManufacturingStep
 
         var sequence = new XElement(
             XmlNamespaces.Dw + "SequenceRun",
-            new XAttribute("SequenceRunId", Id),
             new XAttribute("StartDate", util.FormatDateTime(StartTime)),
-            new XAttribute("StationFullName", _station)
+            Status != ExecutionStatusKind.NOT_COMPLETED
+                ? new XAttribute("EndDate", util.FormatDateTime(EndTime))
+                : null,
+            new XAttribute("SequenceExecutionStatus", Status),
+            new XAttribute("SequenceRunId", Id),
+            string.IsNullOrWhiteSpace(Name) ? null : new XAttribute("SequenceFullName", Name),
+            string.IsNullOrWhiteSpace(Version) ? null : new XAttribute("SequenceVersion", Version),
+            new XAttribute("StationFullName", _station),
+            string.IsNullOrWhiteSpace(User) ? null : new XAttribute("User", User)
         );
-
-        if (Status != ExecutionStatusKind.NOT_COMPLETED)
-        {
-            sequence.Add(new XAttribute("EndDate", util.FormatDateTime(EndTime)));
-        }
-
-        if (!string.IsNullOrWhiteSpace(Name))
-        {
-            sequence.Add(new XAttribute("SequenceFullName", Name));
-        }
-
-        sequence.Add(new XAttribute("SequenceExecutionStatus", Status));
-
-        if (!string.IsNullOrWhiteSpace(Version))
-        {
-            sequence.Add(new XAttribute("SequenceVersion", Version));
-        }
-
-        if (!string.IsNullOrWhiteSpace(User))
-        {
-            sequence.Add(new XAttribute("User", User));
-        }
 
         foreach (var step in Steps)
         {
@@ -1017,36 +1055,16 @@ public sealed class OperationRun : ManufacturingStep
         var operation = new XElement(
             XmlNamespaces.Dw + "OperationRun",
             new XAttribute("OperationRunId", Id),
+            string.IsNullOrWhiteSpace(ProcessName) ? null : new XAttribute("ProcessFullName", ProcessName),
+            string.IsNullOrWhiteSpace(Name) ? null : new XAttribute("OperationName", Name),
+            new XAttribute("StationFullName", Station),
+            string.IsNullOrWhiteSpace(User) ? null : new XAttribute("User", User),
+            new XAttribute("OperationStatus", Status),
             new XAttribute("OperationRunStartTime", util.FormatDateTime(StartTime)),
-            new XAttribute("StationFullName", Station)
+            Status != ExecutionStatusKind.NOT_COMPLETED
+                ? new XAttribute("OperationRunEndTime", util.FormatDateTime(EndTime))
+                : null
         );
-
-        if (Status != ExecutionStatusKind.NOT_COMPLETED)
-        {
-            operation.Add(new XAttribute("OperationRunEndTime", util.FormatDateTime(EndTime)));
-        }
-
-        if (!string.IsNullOrWhiteSpace(Name))
-        {
-            operation.Add(new XAttribute("OperationName", Name));
-        }
-
-        operation.Add(new XAttribute("OperationStatus", Status));
-
-        if (!string.IsNullOrWhiteSpace(User))
-        {
-            operation.Add(new XAttribute("User", User));
-        }
-
-        if (!string.IsNullOrWhiteSpace(ProcessName))
-        {
-            operation.Add(new XAttribute("ProcessFullName", ProcessName));
-        }
-
-        foreach (var sequence in Sequences)
-        {
-            operation.Add(sequence.Build(util));
-        }
 
         var characteristics = new List<Characteristic>(Characteristics);
         if (!string.IsNullOrWhiteSpace(TestPositionName))
@@ -1068,6 +1086,11 @@ public sealed class OperationRun : ManufacturingStep
         foreach (var document in Documents)
         {
             operation.Add(document.Build(util));
+        }
+
+        foreach (var sequence in Sequences)
+        {
+            operation.Add(sequence.Build(util));
         }
 
         return operation;
@@ -1185,32 +1208,17 @@ public sealed class ProcessRun : VersionedManufacturingStep
         var process = new XElement(
             XmlNamespaces.Dw + "TopProcessRun",
             new XAttribute("ProcessRunId", processRunId),
+            string.IsNullOrWhiteSpace(Name) ? null : new XAttribute("ProcessFullName", Name),
             new XAttribute("ProductUnitIdentifier", ProductUnitIdentifier),
             new XAttribute("ProductFullName", ProductFullName),
-            new XAttribute("ProcessRunStartTime", util.FormatDateTime(StartTime))
+            new XAttribute("ProcessRunStatus", Status),
+            new XAttribute("ProcessRunStartTime", util.FormatDateTime(StartTime)),
+            Status != ExecutionStatusKind.NOT_COMPLETED
+                ? new XAttribute("ProcessRunEndTime", util.FormatDateTime(EndTime))
+                : null,
+            string.IsNullOrWhiteSpace(Version) ? null : new XAttribute("ProcessVersion", Version),
+            string.IsNullOrWhiteSpace(ProcessMode) ? null : new XAttribute("ProcessMode", ProcessMode)
         );
-
-        if (Status != ExecutionStatusKind.NOT_COMPLETED)
-        {
-            process.Add(new XAttribute("ProcessRunEndTime", util.FormatDateTime(EndTime)));
-        }
-
-        if (!string.IsNullOrWhiteSpace(Name))
-        {
-            process.Add(new XAttribute("ProcessFullName", Name));
-        }
-
-        process.Add(new XAttribute("ProcessRunStatus", Status));
-
-        if (!string.IsNullOrWhiteSpace(Version))
-        {
-            process.Add(new XAttribute("ProcessVersion", Version));
-        }
-
-        if (!string.IsNullOrWhiteSpace(ProcessMode))
-        {
-            process.Add(new XAttribute("ProcessMode", ProcessMode));
-        }
 
         foreach (var operation in Operations)
         {
@@ -1320,42 +1328,26 @@ public sealed class ProductUnit : Buildable
 
         var productUnit = new XElement(
             XmlNamespaces.Dw + "ProductUnit",
-            new XAttribute("ProductUnitIdentifier", ProductUnitIdentifier)
+            new XAttribute("ProductUnitIdentifier", ProductUnitIdentifier),
+            string.IsNullOrWhiteSpace(ProductFullName)
+                ? null
+                : new XAttribute("ProductFullName", ProductFullName),
+            Scrapped.HasValue
+                ? new XAttribute("Scrapped", Scrapped.Value.ToString().ToLowerInvariant())
+                : null,
+            ScrapTime.HasValue
+                ? new XAttribute("ScrappedTime", util.FormatDateTime(ScrapTime))
+                : null,
+            CreationTime.HasValue
+                ? new XAttribute("CreationTime", util.FormatDateTime(CreationTime))
+                : null,
+            ManufacturingTime.HasValue
+                ? new XAttribute("ManufacturingTime", util.FormatDateTime(ManufacturingTime))
+                : null,
+            string.IsNullOrWhiteSpace(Manufacturer)
+                ? null
+                : new XAttribute("ByManufacturer", Manufacturer)
         );
-
-        if (!string.IsNullOrWhiteSpace(ProductFullName))
-        {
-            productUnit.Add(new XAttribute("ProductFullName", ProductFullName));
-        }
-
-        if (!string.IsNullOrWhiteSpace(Manufacturer))
-        {
-            productUnit.Add(new XAttribute("ByManufacturer", Manufacturer));
-        }
-
-        if (CreationTime.HasValue)
-        {
-            productUnit.Add(new XAttribute("CreationTime", util.FormatDateTime(CreationTime)));
-        }
-
-        if (ManufacturingTime.HasValue)
-        {
-            productUnit.Add(
-                new XAttribute("ManufacturingTime", util.FormatDateTime(ManufacturingTime))
-            );
-        }
-
-        if (Scrapped.HasValue)
-        {
-            productUnit.Add(
-                new XAttribute("Scrapped", Scrapped.Value.ToString().ToLowerInvariant())
-            );
-        }
-
-        if (ScrapTime.HasValue)
-        {
-            productUnit.Add(new XAttribute("ScrappedTime", util.FormatDateTime(ScrapTime)));
-        }
 
         foreach (var characteristic in Characteristics)
         {
