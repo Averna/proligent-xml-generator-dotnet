@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Proligent.Datawarehouse xmlns="http://www.averna.com/products/proligent/analytics/DIT/6.85" GenerationTime="2024-01-01T09:00:00-05:00" DataSourceFingerprint="00000000-0000-0000-0000-000000000017">
+<Proligent.Datawarehouse GenerationTime="2024-01-01T09:00:00-05:00" DataSourceFingerprint="00000000-0000-0000-0000-000000000017" xmlns="http://www.averna.com/products/proligent/analytics/DIT/6.85">
   <TopProcessRun ProcessRunId="d14d2f94-9162-4f06-939d-bcc7403630df" ProcessFullName="XmlGenerator/Process/simple_oprun_reverse_order" ProductUnitIdentifier="PU-001" ProductFullName="XmlGenerator/Product/simple_oprun_reverse_order" ProcessRunStatus="PASS" ProcessRunStartTime="2024-01-01T08:00:00-05:00" ProcessRunEndTime="2024-01-01T08:20:00-05:00" ProcessMode="PROD">
     <OperationRun OperationRunId="00000000-0000-0000-0000-000000000015" ProcessFullName="XmlGenerator/Process/simple_oprun_reverse_order" OperationName="Operation/Example" StationFullName="XmlGenerator/Station/simple_oprun_reverse_order" User="operator" OperationStatus="PASS" OperationRunStartTime="2024-01-01T08:00:00-05:00" OperationRunEndTime="2024-01-01T08:20:00-05:00">
       <Characteristic FullName="Batch" Value="B-42" />

@@ -165,11 +165,13 @@ public abstract class Buildable
     /// <param name="destinationFolder">Optional destination file path.</param>
     /// <param name="fileName">Optional destination file name.</param>
     /// <param name="util">Optional utility instance to use for configuration.</param>
+    /// <param name="copyReferenceDocumentsToDestination">Whether to copy referenced documents to the destination folder.</param>
     /// <returns>The resulting file path.</returns>
     public virtual string SaveXml(
         string? destinationFolder = null,
         string? fileName = null,
-        Util? util = null
+        Util? util = null,
+        bool copyReferenceDocumentsToDestination = true
     )
     {
         util ??= Util.Default;
@@ -185,10 +187,13 @@ public abstract class Buildable
         Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(targetPath))!);
         var xml = ToXml(util);
         var doc = XDocument.Parse(xml);
-        CopyReferencedDocumentsAndRewrite(
-            doc,
-            Path.GetDirectoryName(Path.GetFullPath(targetPath))!
-        );
+        if (copyReferenceDocumentsToDestination)
+        {
+            CopyReferencedDocumentsAndRewrite(
+                doc,
+                Path.GetDirectoryName(Path.GetFullPath(targetPath))!
+            );
+        }
 
         var settings = new XmlWriterSettings
         {
@@ -689,7 +694,9 @@ public sealed class Measure<T> : Buildable, IMeasure
     /// <summary>Optional number of significant digits written to the Precision attribute of the Value element.</summary>
     public int? Precision { get; }
 
-    /// <inheritdoc />
+    /// <summary>
+    /// Build the XML element that mirrors the Datawarehouse schema element for this object.
+    /// </summary>
     public override XElement Build(Util? util = null)
     {
         util ??= Util.Default;
@@ -1209,6 +1216,7 @@ public sealed class ProcessRun : VersionedManufacturingStep
             XmlNamespaces.Dw + "TopProcessRun",
             new XAttribute("ProcessRunId", processRunId),
             string.IsNullOrWhiteSpace(Name) ? null : new XAttribute("ProcessFullName", Name),
+            string.IsNullOrWhiteSpace(Version) ? null : new XAttribute("ProcessVersion", Version),
             new XAttribute("ProductUnitIdentifier", ProductUnitIdentifier),
             new XAttribute("ProductFullName", ProductFullName),
             new XAttribute("ProcessRunStatus", Status),
@@ -1216,7 +1224,6 @@ public sealed class ProcessRun : VersionedManufacturingStep
             Status != ExecutionStatusKind.NOT_COMPLETED
                 ? new XAttribute("ProcessRunEndTime", util.FormatDateTime(EndTime))
                 : null,
-            string.IsNullOrWhiteSpace(Version) ? null : new XAttribute("ProcessVersion", Version),
             string.IsNullOrWhiteSpace(ProcessMode) ? null : new XAttribute("ProcessMode", ProcessMode)
         );
 

@@ -2,10 +2,10 @@ namespace Proligent.XmlGenerator.Tests.Scenarios;
 
 public class ReadmeExample2XmlGenerationScenario : IXmlGenerationScenario
 {
-    public ScenarioResult Generate()
+    public ScenarioResult Generate(DateTime? startTimestamp = null)
     {
         Util tzUtil = new Util(timeZoneId: "Europe/Paris");
-        DateTime instant = new DateTime(2024, 1, 1, 12, 0, 0, DateTimeKind.Unspecified);
+        DateTime instant = startTimestamp ?? new DateTime(2024, 1, 1, 12, 0, 0, DateTimeKind.Unspecified);
 
         DataWareHouse warehouse = new DataWareHouse(generationTime: instant);
 

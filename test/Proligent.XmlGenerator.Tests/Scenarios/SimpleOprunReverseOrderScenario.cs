@@ -2,10 +2,10 @@ namespace Proligent.XmlGenerator.Tests.Scenarios;
 
 public class SimpleOprunReverseOrderXmlGenerationScenario : IXmlGenerationScenario
 {
-    public ScenarioResult Generate()
+    public ScenarioResult Generate(DateTime? startTimestamp = null)
     {
         Util tzUtil = new Util(timeZoneId: "America/New_York");
-        DateTime start = new DateTime(2024, 1, 1, 8, 0, 0, DateTimeKind.Unspecified);
+        DateTime start = startTimestamp ?? new DateTime(2024, 1, 1, 8, 0, 0, DateTimeKind.Unspecified);
         DateTime processStart     = start;
         DateTime processEnd       = start.AddMinutes(20);
         DateTime sequenceStart    = start.AddMinutes(10);

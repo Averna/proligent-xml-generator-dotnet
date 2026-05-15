@@ -6,6 +6,14 @@ namespace Proligent.XmlGenerator.Tests.Scenarios;
 
 public class XmlScenarioGenerationTests(ITestOutputHelper output)
 {
+    private static string OutputDirectory =>
+        Environment.GetEnvironmentVariable("VSTEST_RESULTS_DIRECTORY")
+        ?? Path.Combine(AppContext.BaseDirectory, "TestOutput");
+
+    private static readonly string OutputFolderTimestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+    private static readonly string RunDirectory = Path.Combine(OutputDirectory, OutputFolderTimestamp);
+    private static readonly string RunRealFilesDirectory = Path.Combine(RunDirectory, "real");
+
     /// <summary>
     /// Override Util.Default's UUID factory with a sequential counter (matches Python mock_uuid_sequence).
     /// Returns an IDisposable that restores the original factory on Dispose.
@@ -23,122 +31,69 @@ public class XmlScenarioGenerationTests(ITestOutputHelper output)
         public void Dispose() => action();
     }
 
-    private static string OutputDirectory =>
-        Environment.GetEnvironmentVariable("VSTEST_RESULTS_DIRECTORY")
-        ?? Path.Combine(AppContext.BaseDirectory, "TestOutput");
+    private static string XmlScenarioFileName(string scenarioName) => $"Proligent_{scenarioName}.xml";
+    private static string XmlScenarioFileNameWithSuffix(string scenarioName, string suffix) => $"Proligent_{scenarioName}.{suffix}.xml";
 
-    private void CompareToFixture(ScenarioResult result, string fixtureName)
+    /// <summary>
+    /// Runs a scenario end-to-end:
+    /// 1. Generates with mocked UUIDs and compares against the expected fixture.
+    /// 2. Generates a "real" file with real UUIDs and real timestamps via SaveXml.
+    /// </summary>
+    private void RunScenario(IXmlGenerationScenario scenario, string scenarioName)
     {
-        string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-        string runDirectory = Path.Combine(OutputDirectory, "xml-scenarios", timestamp);
-        Directory.CreateDirectory(runDirectory);
+        output.WriteLine($"RunDirectory : {RunDirectory}");
 
-        // Use ToXml to produce the XML string — SaveXml is for real deployments and
-        // requires the referenced document files (PDFs, images, etc.) to exist on disk.
-        string xmlString = result.Warehouse.ToXml(result.Util);
-        XDocument generated = XDocument.Parse(xmlString);
+        Directory.CreateDirectory(RunDirectory);
+        Directory.CreateDirectory(RunRealFilesDirectory);
 
-        string generatedPath = Path.Combine(runDirectory, AddSuffix(fixtureName, "actual"));
-        WriteXml(generated, generatedPath);
-        output.WriteLine($"Generated : {generatedPath}");
+        // define file names and paths
+        string expectedSourceFilePath = Path.Combine(AppContext.BaseDirectory, "Expected", XmlScenarioFileName(scenarioName));
+        var expectedCopiedFileName = XmlScenarioFileNameWithSuffix(scenarioName, "expected");
+        string expectedCopyFilePath = Path.Combine(RunDirectory, expectedCopiedFileName);
+        string actualXmlFileName = XmlScenarioFileNameWithSuffix(scenarioName, "actual");
+        string realXmlFileName = XmlScenarioFileNameWithSuffix(scenarioName, "real");
 
-        string expectedSource = Path.Combine(AppContext.BaseDirectory, "Expected", fixtureName);
-        string expectedCopyPath = Path.Combine(runDirectory, AddSuffix(fixtureName, "expected"));
-        if (File.Exists(expectedSource))
+        // copy 'expected' file to output folder
+        if (!File.Exists(expectedSourceFilePath))
         {
-            File.Copy(expectedSource, expectedCopyPath, overwrite: true);
-            output.WriteLine($"Expected  : {expectedCopyPath}");
+            throw new Exception($"'Expected' file not found for scenario '{scenarioName}'. Expected file path: '{expectedSourceFilePath}'");
+        }
+        File.Copy(expectedSourceFilePath, expectedCopyFilePath, overwrite: true);
+        output.WriteLine($"Expected file copied : {expectedCopiedFileName}");
+
+        using (var _ = MockUuidSequence())
+        {
+            ScenarioResult result = scenario.Generate();
+            result.Warehouse.SaveXml(RunDirectory, actualXmlFileName, result.Util, copyReferenceDocumentsToDestination: false);
+            output.WriteLine($"Generated File Path : {actualXmlFileName}");
+
+            string actualFilePath = Path.Combine(RunDirectory, actualXmlFileName);
+            CompareActualVsExpected(actualFilePath, expectedSourceFilePath);
         }
 
-        if (Environment.GetEnvironmentVariable("REGEN_FIXTURES") == "1")
-        {
-            string sourceFixturePath = Path.GetFullPath(Path.Combine(
-                AppContext.BaseDirectory, "..", "..", "..", "Expected", fixtureName));
-            WriteXml(generated, sourceFixturePath);
-            output.WriteLine($"Fixture regenerated: {sourceFixturePath}");
-            return;
-        }
+        ScenarioResult realXmlResult = scenario.Generate(startTimestamp: DateTime.Now);
+        realXmlResult.Warehouse.SaveXml(RunRealFilesDirectory, realXmlFileName,realXmlResult.Util, copyReferenceDocumentsToDestination: false);
+        output.WriteLine($"Real file : {realXmlFileName}");
+    }
 
-        XDocument expected = XDocument.Load(expectedSource);
+    private void CompareActualVsExpected(string actualFilePath, string expectedSourceFilePath)
+    {
+        // load 'actual' XML from the saved file
+        XDocument generated = XDocument.Load(actualFilePath);
+
+        // load 'expected' XML
+        XDocument expected = XDocument.Load(expectedSourceFilePath);
+
+        // compare
         XmlTestUtils.NormalizeXml(generated.ToString())
             .Should().Be(XmlTestUtils.NormalizeXml(expected.ToString()));
     }
 
-    /// <summary>Inserts a dot-separated suffix before the file extension: "foo.xml" → "foo.actual.xml".</summary>
-    private static string AddSuffix(string fileName, string suffix)
-    {
-        string ext = Path.GetExtension(fileName);
-        string stem = Path.GetFileNameWithoutExtension(fileName);
-        return $"{stem}.{suffix}{ext}";
-    }
-
-    private static void WriteXml(XDocument doc, string destPath)
-    {
-        var settings = new System.Xml.XmlWriterSettings
-        {
-            Indent = true,
-            IndentChars = "  ",
-            OmitXmlDeclaration = false,
-            Encoding = new System.Text.UTF8Encoding(encoderShouldEmitUTF8Identifier: false),
-        };
-        using var sw = new StreamWriter(destPath, append: false, new System.Text.UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
-        using var xw = System.Xml.XmlWriter.Create(sw, settings);
-        doc.Save(xw);
-    }
-
-    [Fact]
-    public void ReadmeExample1()
-    {
-        using var _ = MockUuidSequence();
-        ScenarioResult result = new ReadmeExample1XmlGenerationScenario().Generate();
-        CompareToFixture(result, "Proligent_readme_example1.xml");
-    }
-
-    [Fact]
-    public void ReadmeExample2()
-    {
-        using var _ = MockUuidSequence();
-        ScenarioResult result = new ReadmeExample2XmlGenerationScenario().Generate();
-        CompareToFixture(result, "Proligent_readme_example2.xml");
-    }
-
-    [Fact]
-    public void SimpleOprunNormalOrder()
-    {
-        using var _ = MockUuidSequence();
-        ScenarioResult result = new SimpleOprunNormalOrderXmlGenerationScenario().Generate();
-        CompareToFixture(result, "Proligent_simple_oprun_normal_order.xml");
-    }
-
-    [Fact]
-    public void SimpleOprunReverseOrder()
-    {
-        using var _ = MockUuidSequence();
-        ScenarioResult result = new SimpleOprunReverseOrderXmlGenerationScenario().Generate();
-        CompareToFixture(result, "Proligent_simple_oprun_reverse_order.xml");
-    }
-
-    [Fact]
-    public void SimpleOprunSharedProcessId()
-    {
-        using var _ = MockUuidSequence();
-        ScenarioResult result = new SimpleOprunSharedProcessIdXmlGenerationScenario().Generate();
-        CompareToFixture(result, "Proligent_simple_oprun_shared_process_id.xml");
-    }
-
-    [Fact]
-    public void ComplexOprun()
-    {
-        using var _ = MockUuidSequence();
-        ScenarioResult result = new ComplexOprunXmlGenerationScenario().Generate();
-        CompareToFixture(result, "Proligent_complex_oprun.xml");
-    }
-
-    [Fact]
-    public void PartialOperationRun()
-    {
-        using var _ = MockUuidSequence();
-        ScenarioResult result = new PartialOperationRunXmlGenerationScenario().Generate();
-        CompareToFixture(result, "Proligent_partial_operation_run.xml");
-    }
+    [Fact] public void ReadmeExample1() => RunScenario(new ReadmeExample1XmlGenerationScenario(), "readme_example1");
+    [Fact] public void ReadmeExample2() => RunScenario(new ReadmeExample2XmlGenerationScenario(), "readme_example2");
+    [Fact] public void SimpleOprunNormalOrder() => RunScenario(new SimpleOprunNormalOrderXmlGenerationScenario(), "simple_oprun_normal_order");
+    [Fact] public void SimpleOprunReverseOrder() => RunScenario(new SimpleOprunReverseOrderXmlGenerationScenario(), "simple_oprun_reverse_order");
+    [Fact] public void SimpleOprunSharedProcessId() => RunScenario(new SimpleOprunSharedProcessIdXmlGenerationScenario(), "simple_oprun_shared_process_id");
+    [Fact] public void ComplexOprun() => RunScenario(new ComplexOprunXmlGenerationScenario(), "complex_oprun");
+    [Fact] public void PartialOperationRun() => RunScenario(new PartialOperationRunXmlGenerationScenario(), "partial_operation_run");
 }

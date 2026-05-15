@@ -2,10 +2,10 @@ namespace Proligent.XmlGenerator.Tests.Scenarios;
 
 public class ReadmeExample1XmlGenerationScenario : IXmlGenerationScenario
 {
-    public ScenarioResult Generate()
+    public ScenarioResult Generate(DateTime? startTimestamp = null)
     {
         Util tzUtil = new Util(timeZoneId: "Europe/Brussels");
-        DateTime instant = new DateTime(2024, 1, 1, 12, 0, 0, DateTimeKind.Unspecified);
+        DateTime instant = startTimestamp ?? new DateTime(2024, 1, 1, 12, 0, 0, DateTimeKind.Unspecified);
 
         Limit limit = new Limit(
             LimitExpression.LOWERBOUND_LEQ_X_LE_HIGHER_BOUND,

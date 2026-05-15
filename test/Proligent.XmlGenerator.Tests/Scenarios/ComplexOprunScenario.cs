@@ -2,10 +2,10 @@ namespace Proligent.XmlGenerator.Tests.Scenarios;
 
 public class ComplexOprunXmlGenerationScenario : IXmlGenerationScenario
 {
-    public ScenarioResult Generate()
+    public ScenarioResult Generate(DateTime? startTimestamp = null)
     {
         Util tzUtil = new Util(timeZoneId: "America/Bogota");
-        DateTime start = new DateTime(2024, 4, 1, 7, 0, 0, DateTimeKind.Unspecified);
+        DateTime start = startTimestamp ?? new DateTime(2024, 4, 1, 7, 0, 0, DateTimeKind.Unspecified);
         DateTime generationTime   = start.AddHours(1);
         DateTime processStart     = start;
         DateTime processEnd       = start.AddMinutes(50);

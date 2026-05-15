@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Proligent.Datawarehouse xmlns="http://www.averna.com/products/proligent/analytics/DIT/6.85" GenerationTime="2024-01-02T10:00:00-05:00" DataSourceFingerprint="00000000-0000-0000-0000-000000000001">
+<Proligent.Datawarehouse GenerationTime="2024-01-02T10:00:00-05:00" DataSourceFingerprint="00000000-0000-0000-0000-000000000001" xmlns="http://www.averna.com/products/proligent/analytics/DIT/6.85">
   <TopProcessRun ProcessRunId="73e64623-43aa-48db-af28-12f58f222530" ProcessFullName="XmlGenerator/Process/simple_oprun_normal_order" ProductUnitIdentifier="PU-001" ProductFullName="XmlGenerator/Product/simple_oprun_normal_order" ProcessRunStatus="PASS" ProcessRunStartTime="2024-01-02T09:00:00-05:00" ProcessRunEndTime="2024-01-02T09:25:00-05:00" ProcessMode="PROD">
     <OperationRun OperationRunId="00000000-0000-0000-0000-000000000002" ProcessFullName="XmlGenerator/Process/simple_oprun_normal_order" OperationName="Operation/ExtendedValidation" StationFullName="XmlGenerator/Station/simple_oprun_shared_process_id" User="operator_b" OperationStatus="PASS" OperationRunStartTime="2024-01-02T09:00:00-05:00" OperationRunEndTime="2024-01-02T09:25:00-05:00">
       <Characteristic FullName="Lot" Value="L-9001" />
