@@ -72,8 +72,50 @@ public class XmlScenarioGenerationTests(ITestOutputHelper output)
         }
 
         ScenarioResult realXmlResult = scenario.Generate(startTimestamp: DateTime.Now);
-        realXmlResult.Warehouse.SaveXml(RunRealFilesDirectory, realXmlFileName,realXmlResult.Util, copyReferenceDocumentsToDestination: false);
+        string realXmlFilePath = realXmlResult.Warehouse.SaveXml(RunRealFilesDirectory, realXmlFileName, realXmlResult.Util, copyReferenceDocumentsToDestination: false);
+        CreateDummyDocumentFiles(realXmlFilePath, RunRealFilesDirectory);
         output.WriteLine($"Real file : {realXmlFileName}");
+    }
+
+    /// <summary>
+    /// Creates dummy document files in the destination folder for each Document referenced
+    /// in the saved XML file.
+    /// </summary>
+    private static void CreateDummyDocumentFiles(string xmlFilePath, string destinationFolder)
+    {
+        XDocument doc = XDocument.Load(xmlFilePath);
+
+        foreach (var docElem in doc.Descendants(XmlNamespaces.Dw + "Document"))
+        {
+            var fileAttr = docElem.Attribute("FileName");
+            if (fileAttr is null || string.IsNullOrWhiteSpace(fileAttr.Value))
+                continue;
+
+            string originalFileName = fileAttr.Value;
+            string identifier = docElem.Attribute("Identifier")?.Value ?? "unknown";
+            string suggestedFileName = $"Document_{identifier}_{originalFileName}";
+            string dummyFilePath = Path.Combine(destinationFolder, suggestedFileName);
+
+            if (!File.Exists(dummyFilePath))
+            {
+                string content =
+                    $"""
+                    Dummy Document File
+                    ===================
+
+                    This is a placeholder document generated for testing purposes.
+
+                    Document ID: {identifier}
+                    Original Filename: {originalFileName}
+                    Suggested Filename: {suggestedFileName}
+                    Generated: {DateTime.Now:yyyy-MM-dd HH:mm:ss}
+
+                    This file would normally contain the actual document content.
+                    """;
+
+                File.WriteAllText(dummyFilePath, content);
+            }
+        }
     }
 
     private void CompareActualVsExpected(string actualFilePath, string expectedSourceFilePath)
