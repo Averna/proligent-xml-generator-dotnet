@@ -18,7 +18,7 @@ public class XmlScenarioGenerationTests(ITestOutputHelper output)
     /// Override Util.Default's UUID factory with a sequential counter (matches Python mock_uuid_sequence).
     /// Returns an IDisposable that restores the original factory on Dispose.
     /// </summary>
-    private static IDisposable MockUuidSequence(string prefix = "00000000-0000-0000-0000-", int start = 1)
+    private static DelegateDisposable MockUuidSequence(string prefix = "00000000-0000-0000-0000-", int start = 1)
     {
         var original = Util.Default.UuidFactory;
         int counter = start;
@@ -118,7 +118,7 @@ public class XmlScenarioGenerationTests(ITestOutputHelper output)
         }
     }
 
-    private void CompareActualVsExpected(string actualFilePath, string expectedSourceFilePath)
+    private static void CompareActualVsExpected(string actualFilePath, string expectedSourceFilePath)
     {
         // load 'actual' XML from the saved file
         XDocument generated = XDocument.Load(actualFilePath);

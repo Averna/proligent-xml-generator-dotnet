@@ -29,9 +29,15 @@
   // Custom project dictionary
   "words": [
     "Averna",
+    "CPDD",
     "Datawarehouse",
     "docstrings",
+    "HIGHERBOUND",
     "kics",
+    "LOWERBOUND",
+    "lycheeignore",
+    "mkdocs",
+    "mkdocstrings",
     "oprun",
     "Proligent",
     "pypa",
@@ -42,14 +48,10 @@
     "pytz",
     "setuptools",
     "sitecustomize",
-    "testpypi",
-    "xsdata",
-    "mkdocs",
-    "mkdocstrings",
-    "LOWERBOUND",
-    "HIGHERBOUND",
     "sszzz",
-    "Xunit",
-    "lycheeignore"
+    "testpypi",
+    "VSTEST",
+    "xsdata",
+    "Xunit"
   ]
 }
