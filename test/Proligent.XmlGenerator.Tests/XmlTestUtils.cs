@@ -10,11 +10,6 @@ namespace Proligent.XmlGenerator.Tests
         {
             var doc = XDocument.Parse(xml);
 
-            if (doc.Root != null)
-            {
-                SortAttributes(doc.Root);
-            }
-
             var readerSettings = new XmlReaderSettings
             {
                 IgnoreWhitespace = true,
@@ -37,20 +32,6 @@ namespace Proligent.XmlGenerator.Tests
 
             writer.Flush();
             return sb.ToString();
-        }
-
-        private static void SortAttributes(XElement element)
-        {
-            var ordered = element
-                .Attributes()
-                .OrderBy(a => a.Name.NamespaceName)
-                .ThenBy(a => a.Name.LocalName)
-                .ToList();
-
-            element.ReplaceAttributes(ordered);
-
-            foreach (var child in element.Elements())
-                SortAttributes(child);
         }
     }
 }
