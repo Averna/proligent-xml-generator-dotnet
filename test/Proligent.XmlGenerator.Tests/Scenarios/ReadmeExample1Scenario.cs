@@ -1,33 +1,25 @@
-using System.Xml.Linq;
-using FluentAssertions;
-using Xunit;
+namespace Proligent.XmlGenerator.Tests.Scenarios;
 
-namespace Proligent.XmlGenerator.Tests;
-
-public class XmlGenerationTests
+public class ReadmeExample1XmlGenerationScenario : IXmlGenerationScenario
 {
-    [Fact]
-    public void ReadmeExample1_MatchesFixture()
+    public ScenarioResult Generate(DateTime? startTimestamp = null)
     {
         Util tzUtil = new Util(timeZoneId: "Europe/Brussels");
-        DateTime instant = new DateTime(2024, 1, 1, 12, 0, 0, DateTimeKind.Unspecified);
+        DateTime instant = startTimestamp ?? new DateTime(2024, 1, 1, 12, 0, 0, DateTimeKind.Unspecified);
 
         Limit limit = new Limit(
             LimitExpression.LOWERBOUND_LEQ_X_LE_HIGHER_BOUND,
             lowerBound: 10,
             higherBound: 25
         );
-        Measure measure = new Measure(
-            value: 15,
-            id: "00000000-0000-0000-0000-000000000001",
-            limit: limit,
-            time: instant,
-            status: ExecutionStatusKind.PASS
-        );
+        var measure = Measure.Create(15, new MeasureOptions(
+            Limit: limit,
+            Time: instant,
+            Status: ExecutionStatusKind.PASS
+        ));
 
         StepRun step = new StepRun(
             measure: measure,
-            id: "00000000-0000-0000-0000-000000000002",
             name: "Step1",
             status: ExecutionStatusKind.PASS,
             startTime: instant,
@@ -36,7 +28,6 @@ public class XmlGenerationTests
 
         SequenceRun sequence = new SequenceRun(
             steps: new[] { step },
-            id: "00000000-0000-0000-0000-000000000003",
             name: "Sequence1",
             status: ExecutionStatusKind.PASS,
             startTime: instant,
@@ -46,7 +37,6 @@ public class XmlGenerationTests
         OperationRun operation = new OperationRun(
             station: "Station/readme_example1",
             sequences: new[] { sequence },
-            id: "00000000-0000-0000-0000-000000000004",
             name: "Operation1",
             processName: "Process/readme_example1",
             status: ExecutionStatusKind.PASS,
@@ -58,7 +48,6 @@ public class XmlGenerationTests
             productUnitIdentifier: "DutSerialNumber",
             productFullName: "Product/readme_example1",
             operations: new[] { operation },
-            id: "00000000-0000-0000-0000-000000000005",
             name: "Process/readme_example1",
             processMode: "PROD",
             status: ExecutionStatusKind.PASS,
@@ -75,22 +64,9 @@ public class XmlGenerationTests
         DataWareHouse warehouse = new DataWareHouse(
             topProcess: process,
             productUnit: product,
-            generationTime: instant,
-            sourceFingerprint: "00000000-0000-0000-0000-000000000006"
+            generationTime: instant
         );
 
-        string xml = warehouse.ToXml(tzUtil);
-        XDocument generated = XDocument.Parse(xml);
-        string expectedPath = Path.Combine(
-            AppContext.BaseDirectory,
-            "Expected",
-            "Proligent_readme_example1.xml"
-        );
-        XDocument expected = XDocument.Load(expectedPath);
-
-        XmlTestUtils
-            .NormalizeXml(generated.ToString())
-            .Should()
-            .Be(XmlTestUtils.NormalizeXml(expected.ToString()));
+        return new ScenarioResult(warehouse, tzUtil);
     }
 }
