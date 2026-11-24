@@ -6,16 +6,16 @@ public class SimpleOprunReverseOrderXmlGenerationScenario : IXmlGenerationScenar
     {
         Util tzUtil = new Util(timeZoneId: "America/New_York");
         DateTime start = startTimestamp ?? new DateTime(2024, 1, 1, 8, 0, 0, DateTimeKind.Unspecified);
-        DateTime processStart     = start;
-        DateTime processEnd       = start.AddMinutes(20);
-        DateTime sequenceStart    = start.AddMinutes(10);
-        DateTime sequenceEnd      = start.AddMinutes(12);
-        DateTime inspectionTime   = start.AddMinutes(10).AddSeconds(30);
-        DateTime countTime        = start.AddMinutes(10).AddSeconds(45);
-        DateTime visualTime       = start.AddMinutes(11);
-        DateTime calibrationTime  = start.AddMinutes(11).AddSeconds(15);
-        DateTime notesTime        = start.AddMinutes(11).AddSeconds(30);
-        DateTime generationTime   = start.AddHours(1);
+        DateTime processStart = start;
+        DateTime processEnd = start.AddMinutes(20);
+        DateTime sequenceStart = start.AddMinutes(10);
+        DateTime sequenceEnd = start.AddMinutes(12);
+        DateTime inspectionTime = start.AddMinutes(10).AddSeconds(30);
+        DateTime countTime = start.AddMinutes(10).AddSeconds(45);
+        DateTime visualTime = start.AddMinutes(11);
+        DateTime calibrationTime = start.AddMinutes(11).AddSeconds(15);
+        DateTime notesTime = start.AddMinutes(11).AddSeconds(30);
+        DateTime generationTime = start.AddHours(1);
 
         StepRun[] steps = new[]
         {

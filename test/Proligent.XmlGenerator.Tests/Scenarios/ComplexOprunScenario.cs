@@ -6,15 +6,15 @@ public class ComplexOprunXmlGenerationScenario : IXmlGenerationScenario
     {
         Util tzUtil = new Util(timeZoneId: "America/Bogota");
         DateTime start = startTimestamp ?? new DateTime(2024, 4, 1, 7, 0, 0, DateTimeKind.Unspecified);
-        DateTime generationTime   = start.AddHours(1);
-        DateTime processStart     = start;
-        DateTime processEnd       = start.AddMinutes(50);
-        DateTime functionalStart  = start.AddMinutes(10);
-        DateTime functionalEnd    = start.AddMinutes(27);
-        DateTime safetyStart      = start.AddMinutes(15);
-        DateTime safetyEnd        = start.AddMinutes(23);
+        DateTime generationTime = start.AddHours(1);
+        DateTime processStart = start;
+        DateTime processEnd = start.AddMinutes(50);
+        DateTime functionalStart = start.AddMinutes(10);
+        DateTime functionalEnd = start.AddMinutes(27);
+        DateTime safetyStart = start.AddMinutes(15);
+        DateTime safetyEnd = start.AddMinutes(23);
         DateTime diagnosticsStart = start.AddMinutes(32);
-        DateTime diagnosticsEnd   = start.AddMinutes(47);
+        DateTime diagnosticsEnd = start.AddMinutes(47);
 
         DataWareHouse warehouse = new DataWareHouse(generationTime: generationTime);
 
