@@ -1,0 +1,8 @@
+---
+customCatalog:
+  schemas:
+    - name: MkDocs 1.6
+      description: MkDocs configuration schema
+      fileMatch:
+        - mkdocs.yml
+      location: https://www.schemastore.org/mkdocs-1.6.json
