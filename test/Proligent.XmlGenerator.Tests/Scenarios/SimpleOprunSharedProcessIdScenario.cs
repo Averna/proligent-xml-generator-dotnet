@@ -6,14 +6,14 @@ public class SimpleOprunSharedProcessIdXmlGenerationScenario : IXmlGenerationSce
     {
         Util tzUtil = new Util(timeZoneId: "America/New_York");
         DateTime start = startTimestamp ?? new DateTime(2024, 1, 2, 9, 0, 0, DateTimeKind.Unspecified);
-        DateTime processStart   = start;
-        DateTime processEnd     = start.AddMinutes(25);
-        DateTime sequenceStart  = start.AddMinutes(5);
-        DateTime sequenceEnd    = start.AddMinutes(18);
+        DateTime processStart = start;
+        DateTime processEnd = start.AddMinutes(25);
+        DateTime sequenceStart = start.AddMinutes(5);
+        DateTime sequenceEnd = start.AddMinutes(18);
         DateTime continuityTime = start.AddMinutes(6);
-        DateTime torqueTime     = start.AddMinutes(9).AddSeconds(15);
-        DateTime firmwareTime   = start.AddMinutes(12).AddSeconds(30);
-        DateTime labelTime      = start.AddMinutes(15).AddSeconds(45);
+        DateTime torqueTime = start.AddMinutes(9).AddSeconds(15);
+        DateTime firmwareTime = start.AddMinutes(12).AddSeconds(30);
+        DateTime labelTime = start.AddMinutes(15).AddSeconds(45);
         DateTime generationTime = start.AddHours(1);
 
         DataWareHouse warehouse = new DataWareHouse(generationTime: generationTime);
