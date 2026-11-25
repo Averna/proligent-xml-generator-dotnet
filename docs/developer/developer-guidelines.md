@@ -2,7 +2,7 @@
 
 ## Local environment
 
-- Install the .NET SDK (6.0+ recommended).
+- Install the .NET 10 SDK. The library targets .NET 8, while `global.json` selects Microsoft.Testing.Platform as the test runner.
 - Restore tools and dependencies with `dotnet restore`.
 - Enable XML documentation output (already configured) to keep IntelliSense and docs fresh.
 

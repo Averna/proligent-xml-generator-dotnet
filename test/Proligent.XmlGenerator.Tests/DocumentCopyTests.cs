@@ -51,9 +51,7 @@ public class DocumentCopyTests
                 .Select(n => n!)
                 .ToList();
 
-            Assert.Single(copiedFiles);
-
-            string copiedFileName = copiedFiles.Single();
+            string copiedFileName = Assert.Single(copiedFiles);
             string copiedPath = Path.Combine(tempDest, copiedFileName);
             Assert.True(
                 File.Exists(copiedPath),

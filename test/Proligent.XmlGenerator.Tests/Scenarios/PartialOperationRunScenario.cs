@@ -5,9 +5,9 @@ public class PartialOperationRunXmlGenerationScenario : IXmlGenerationScenario
     public ScenarioResult Generate(DateTime? startTimestamp = null)
     {
         Util tzUtil = new Util(timeZoneId: "America/Chicago");
-        DateTime start          = startTimestamp ?? new DateTime(2024, 5, 5, 0, 0, 0, DateTimeKind.Unspecified);
+        DateTime start = startTimestamp ?? new DateTime(2024, 5, 5, 0, 0, 0, DateTimeKind.Unspecified);
         DateTime generationTime = start.AddHours(15);
-        DateTime processStart   = start.AddHours(14);
+        DateTime processStart = start.AddHours(14);
 
         DataWareHouse warehouse = new DataWareHouse(generationTime: generationTime);
 

@@ -1,3 +1,5 @@
+#nullable enable
+
 using System.Collections.Concurrent;
 using System.Xml;
 using System.Xml.Schema;
@@ -124,7 +126,8 @@ public static class XmlValidator
             using var stream = File.OpenRead(xsd);
             var schema = XmlSchema.Read(
                 stream,
-                (sender, args) => {
+                (sender, args) =>
+                {
                     //Here you can log which xsd were loaded.
                 }
             );
