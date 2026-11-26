@@ -113,3 +113,6 @@ if (!validation2.IsValid)
 {
     Console.WriteLine($"{validation2.Message}");
 }
+////////////////////////
+// Example 3 (assembly traces)
+////////////////////////
