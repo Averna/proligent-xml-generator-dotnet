@@ -1,0 +1,8 @@
+---
+rules:
+  use-trusted-publishing:
+    ignore:
+      # API key publishing is intentional: GitHub Packages has no OIDC support
+      - publish-preview.yml
+      # TODO: switch to nuget.org trusted publishing once configured on nuget.org
+      - publish.yml
