@@ -6,7 +6,10 @@
 DISABLE_LINTERS:
   - CSHARP_CSHARPIER
   - REPOSITORY_DEVSKIM
+# Disable MegaLinter flavors suggestions.
 FLAVOR_SUGGESTIONS: false
+# Suggestions for MegaLinter 9.5.0 are reviewed. Disabling.
+SECURITY_SUGGESTIONS: false
 # Force warnings into errors
 FORMATTERS_DISABLE_ERRORS: false
 LINTER_RULES_PATH: /
