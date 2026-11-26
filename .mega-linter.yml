@@ -18,5 +18,8 @@ REPOSITORY_KICS_CONFIG_FILE: .kics.yml
 # yamllint configuration file (To match yamllint name format)
 YAML_YAMLLINT_CONFIG_FILE: .yamllint.yml
 
+# Run zizmor offline: online audits need a GitHub token that isn't available to the linter
+ACTION_ZIZMOR_ARGUMENTS: --offline
+
 DISABLE:
   - COPYPASTE

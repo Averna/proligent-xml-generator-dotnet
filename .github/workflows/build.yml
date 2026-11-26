@@ -8,13 +8,10 @@ on:
   pull_request:
     branches:
       - main
+  schedule:
+    # Weekly on Monday at 06:00 UTC; scheduled runs always use the default branch (main)
+    - cron: "0 6 * * 1"
   workflow_dispatch:
-    inputs:
-      branch:
-        description: "Manual run"
-        required: true
-        type: string
-        default: "main"
 
 permissions:
   contents: read
