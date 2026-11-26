@@ -1,4 +1,4 @@
-﻿using Proligent.XmlGenerator;
+using Proligent.XmlGenerator;
 
 string? destinationFolder = null;
 
@@ -116,3 +116,54 @@ if (!validation2.IsValid)
 ////////////////////////
 // Example 3 (assembly traces)
 ////////////////////////
+var warehouse3 = new DataWareHouse(
+    topProcess: process,
+    productUnit: new ProductUnit("ParentSerial", "Product/Parent", manufacturer: "Averna")
+);
+warehouse3.AddProductUnit(new ProductUnit("ChildSerial", "Product/Child", manufacturer: "Averna"));
+var parent = new AssemblyTraceParent("Product/Parent", "ParentSerial", referenceDesignator: "U1");
+// Product-unit child, linked to an existing operation run by its object.
+warehouse3.AddAssemblyTrace(
+    new AssemblyTrace(
+        parent,
+        AssemblyTraceChild.FromProductUnit("Product/Child", "ChildSerial"),
+        AssemblyAction.ASSEMBLE,
+        actionTime: new DateTime(2025, 3, 4, 8, 30, 0),
+        context: AssemblyTraceContext.FromOperationRun(operation),
+        stationFullName: "Station/readme_example",
+        operatorName: "Jane"
+    )
+);
+// Supplier component child, disassembled 4 units, no execution context.
+warehouse3.AddAssemblyTrace(
+    new AssemblyTrace(
+        parent,
+        AssemblyTraceChild.FromSupplierComponent(
+            manufacturer: "Acme",
+            manufacturerPartNumber: "PN-100",
+            componentFullName: "Component/Resistor",
+            manufacturerLot: "LOT-7"
+        ),
+        AssemblyAction.DISASSEMBLE,
+        actionTime: new DateTime(2025, 3, 5, 9, 0, 0),
+        childComponentCount: 4
+    )
+);
+// SET_CURRENT: time the existing assembly was observed and entered, not when it was built.
+warehouse3.AddAssemblyTrace(
+    new AssemblyTrace(
+        parent,
+        AssemblyTraceChild.FromSupplierComponent("Acme", "PN-200", "Component/Chip", manufacturerSerialNumber: "SN-1"),
+        AssemblyAction.SET_CURRENT,
+        actionTime: new DateTime(2025, 3, 6, 10, 0, 0)
+    )
+);
+string example3File = warehouse3.SaveXml(destinationFolder: destinationFolder);
+var validation3 = XmlValidator.ValidateXmlSafe(example3File);
+Console.WriteLine($"Example 3 is valid:{validation3.IsValid}");
+if (!validation3.IsValid)
+{
+    Console.WriteLine($"{validation3.Message}");
+}
+
+

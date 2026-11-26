@@ -1439,7 +1439,40 @@ public sealed class DataWareHouse : Buildable
             warehouse.Add(ProductUnit.Build(util));
         }
 
+        foreach (var additional in _additionalProductUnits)
+        {
+            warehouse.Add(additional.Build(util));
+        }
+
+        foreach (var trace in _assemblyTraces)
+        {
+            warehouse.Add(trace.Build(util));
+        }
+
         return warehouse;
+    }
+
+    private readonly List<ProductUnit> _additionalProductUnits = new();
+    private readonly List<AssemblyTrace> _assemblyTraces = new();
+
+    /// <summary>Additional product units exported after the primary one, in insertion order.</summary>
+    public IReadOnlyList<ProductUnit> AdditionalProductUnits => _additionalProductUnits;
+
+    /// <summary>Assembly traces exported as top-level AssemblyTrace elements, in insertion order.</summary>
+    public IReadOnlyList<AssemblyTrace> AssemblyTraces => _assemblyTraces;
+
+    /// <summary>Append an additional product unit without replacing the primary one.</summary>
+    public ProductUnit AddProductUnit(ProductUnit productUnit)
+    {
+        _additionalProductUnits.Add(productUnit ?? throw new ArgumentNullException(nameof(productUnit)));
+        return productUnit;
+    }
+
+    /// <summary>Append an assembly trace. Product units are not created automatically.</summary>
+    public AssemblyTrace AddAssemblyTrace(AssemblyTrace assemblyTrace)
+    {
+        _assemblyTraces.Add(assemblyTrace ?? throw new ArgumentNullException(nameof(assemblyTrace)));
+        return assemblyTrace;
     }
 
     /// <summary>Assign the ProcessRun that will populate top_process_run.</summary>
