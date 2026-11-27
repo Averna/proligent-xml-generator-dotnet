@@ -7,9 +7,7 @@
     "helpers:pinGitHubActionDigests"
   ],
   // this will add a label 'renovate' to all PRs created by Renovate
-  "labels": [
-    "renovate"
-  ],
+  "labels": ["renovate"],
   // Delay introduction of new versions (give time for security reviews before we introduce the new versions)
   "minimumReleaseAge": "3 days",
   // Create PRs immediately; minimumReleaseAge will still block automerge until stability passes.
@@ -22,26 +20,17 @@
   "prConcurrentLimit": 10,
   "packageRules": [
     {
-      "matchManagers": [
-        "nuget"
-      ],
+      "matchManagers": ["nuget"],
       "groupName": "nuget dependencies",
       "separateMajorMinor": true
     },
     {
-      "matchManagers": [
-        "nuget"
-      ],
-      "matchUpdateTypes": [
-        "minor",
-        "patch"
-      ],
+      "matchManagers": ["nuget"],
+      "matchUpdateTypes": ["minor", "patch"],
       "automerge": true
     },
     {
-      "matchManagers": [
-        "github-actions"
-      ],
+      "matchManagers": ["github-actions"],
       "groupName": "github actions"
     }
   ]

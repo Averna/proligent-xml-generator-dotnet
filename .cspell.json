@@ -28,18 +28,18 @@
   ],
   // Custom project dictionary
   "words": [
-    "Averna",
-    "CPDD",
-    "Datawarehouse",
+    "averna",
+    "cpdd",
+    "datawarehouse",
     "docstrings",
-    "HIGHERBOUND",
+    "higherbound",
     "kics",
-    "LOWERBOUND",
+    "lowerbound",
     "lycheeignore",
     "mkdocs",
     "mkdocstrings",
     "oprun",
-    "Proligent",
+    "proligent",
     "pypa",
     "pypi",
     "pyproject",
@@ -51,8 +51,9 @@
     "sszzz",
     "testpypi",
     "rignore",
-    "VSTEST",
+    "vstest",
     "xsdata",
-    "Xunit"
+    "xunit",
+    "zizmor"
   ]
 }
