@@ -1,5 +1,3 @@
-#nullable enable
-
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
@@ -21,17 +19,19 @@ public enum AssemblyAction
     SET_CURRENT,
 }
 
-internal static class AssemblyValidation
+internal static partial class AssemblyValidation
 {
-    private static readonly Regex FullNamePattern = new(
+    [GeneratedRegex(
         @"^([^/\s][^/]{0,64})?[^/\s](/([^/\s][^/]{0,64})?[^/\s])*\z",
-        RegexOptions.Compiled | RegexOptions.CultureInvariant
-    );
+        RegexOptions.CultureInvariant
+    )]
+    private static partial Regex FullNamePattern();
 
-    private static readonly Regex GuidPattern = new(
+    [GeneratedRegex(
         @"^(?:[A-Fa-f0-9]{8}-(?:[A-Fa-f0-9]{4}-){3}[A-Fa-f0-9]{12}|\{[A-Fa-f0-9]{8}-(?:[A-Fa-f0-9]{4}-){3}[A-Fa-f0-9]{12}\}|\([A-Fa-f0-9]{8}-(?:[A-Fa-f0-9]{4}-){3}[A-Fa-f0-9]{12}\))\z",
-        RegexOptions.Compiled | RegexOptions.CultureInvariant
-    );
+        RegexOptions.CultureInvariant
+    )]
+    private static partial Regex GuidPattern();
 
     public static string NonEmpty(string? value, string field, int maxLength)
     {
@@ -40,7 +40,7 @@ internal static class AssemblyValidation
             throw new ArgumentException($"{field} is required and cannot be empty.", field);
         }
 
-        if (value!.Length > maxLength)
+        if (value.Length > maxLength)
         {
             throw new ArgumentException(
                 $"{field} cannot exceed {maxLength} characters.",
@@ -59,7 +59,7 @@ internal static class AssemblyValidation
     public static string FullName(string? value, string field)
     {
         NonEmpty(value, field, 1950);
-        if (!FullNamePattern.IsMatch(value!))
+        if (!FullNamePattern().IsMatch(value!))
         {
             throw new ArgumentException(
                 $"{field} is not a valid full name (segments of at most 65 characters separated by '/', without leading/trailing whitespace).",
@@ -82,7 +82,7 @@ internal static class AssemblyValidation
             throw new ArgumentException($"{field} is required and cannot be empty.", field);
         }
 
-        if (!GuidPattern.IsMatch(value))
+        if (!GuidPattern().IsMatch(value))
         {
             throw new ArgumentException($"{field} must be a valid GUID.", field);
         }
@@ -158,10 +158,7 @@ public abstract class AssemblyTraceChild
     /// <summary>Reference a child that is a product unit, from an existing model object.</summary>
     public static AssemblyTraceChild FromProductUnit(ProductUnit productUnit)
     {
-        if (productUnit == null)
-        {
-            throw new ArgumentNullException(nameof(productUnit));
-        }
+        ArgumentNullException.ThrowIfNull(productUnit);
 
         return new ProductUnitChild(productUnit.ProductFullName, productUnit.ProductUnitIdentifier);
     }
@@ -328,8 +325,7 @@ public sealed class AssemblyTraceContext
         if (count != 1)
         {
             throw new ArgumentException(
-                "Exactly one of operationRun, sequenceRun, operationRunId or sequenceRunId must be provided.",
-                "context"
+                "Exactly one of operationRun, sequenceRun, operationRunId or sequenceRunId must be provided."
             );
         }
 
@@ -379,7 +375,7 @@ public sealed class AssemblyTrace : Buildable
     {
         Parent = parent ?? throw new ArgumentNullException(nameof(parent));
         Child = child ?? throw new ArgumentNullException(nameof(child));
-        if (!Enum.IsDefined(typeof(AssemblyAction), action))
+        if (!Enum.IsDefined(action))
         {
             throw new ArgumentException(
                 $"Unsupported assembly action '{(int)action}'.",

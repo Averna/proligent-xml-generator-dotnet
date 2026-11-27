@@ -1,4 +1,5 @@
-using System.Linq;
+#nullable enable
+
 using System.Xml.Linq;
 using FluentAssertions;
 using Xunit;
@@ -187,7 +188,7 @@ public class AssemblyTraceTests
             sourceFingerprint: Guid1
         );
         var add1 = wh.AddProductUnit(new ProductUnit("C-1", "Product/Child"));
-        var add2 = wh.AddProductUnit(new ProductUnit("C-2", "Product/Child"));
+        wh.AddProductUnit(new ProductUnit("C-2", "Product/Child"));
         add1.ProductUnitIdentifier.Should().Be("C-1");
         wh.ProductUnit.Should().BeSameAs(primary);
 
@@ -203,7 +204,7 @@ public class AssemblyTraceTests
             .Should().Equal("P-1", "C-1", "C-2");
         root.Elements(XmlNamespaces.Dw + "AssemblyTrace").Should().HaveCount(3);
 
-        var path = Path.Combine(Path.GetTempPath(), $"asm_{System.Guid.NewGuid()}.xml");
+        var path = Path.Combine(Path.GetTempPath(), $"asm_{Guid.NewGuid()}.xml");
         try
         {
             File.WriteAllText(path, wh.ToXml());
