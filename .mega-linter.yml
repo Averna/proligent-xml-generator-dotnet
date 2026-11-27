@@ -6,7 +6,10 @@
 DISABLE_LINTERS:
   - CSHARP_CSHARPIER
   - REPOSITORY_DEVSKIM
+# Disable MegaLinter flavors suggestions.
 FLAVOR_SUGGESTIONS: false
+# Suggestions for MegaLinter 9.5.0 are reviewed. Disabling.
+SECURITY_SUGGESTIONS: false
 # Force warnings into errors
 FORMATTERS_DISABLE_ERRORS: false
 LINTER_RULES_PATH: /
@@ -17,6 +20,9 @@ JSON_JSONLINT_ARGUMENTS: --comments
 REPOSITORY_KICS_CONFIG_FILE: .kics.yml
 # yamllint configuration file (To match yamllint name format)
 YAML_YAMLLINT_CONFIG_FILE: .yamllint.yml
+
+# Run zizmor offline: online audits need a GitHub token that isn't available to the linter
+ACTION_ZIZMOR_ARGUMENTS: --offline
 
 DISABLE:
   - COPYPASTE

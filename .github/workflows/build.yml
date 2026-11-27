@@ -8,27 +8,28 @@ on:
   pull_request:
     branches:
       - main
+  schedule:
+    # Weekly on Monday at 06:00 UTC; scheduled runs always use the default branch (main)
+    - cron: "0 6 * * 1"
   workflow_dispatch:
-    inputs:
-      branch:
-        description: "Manual run"
-        required: true
-        type: string
-        default: "main"
 
 permissions:
   contents: read
-  pull-requests: write
 
 jobs:
   lint:
     name: Lint code
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
       - name: Run Mega-Linter
-        uses: oxsecurity/megalinter@v9.1.0
+        uses: oxsecurity/megalinter@ef3e84b8b836d76db562d0f3ed7da61e8fd538bc # v9.6.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -42,10 +43,12 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
 
       - name: Setup .NET ${{ matrix.dotnet-version }}
-        uses: actions/setup-dotnet@v5
+        uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
 
@@ -64,7 +67,7 @@ jobs:
 
       - name: Upload help docs
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: help-docs-${{ matrix.dotnet-version }}
           path: build/help
