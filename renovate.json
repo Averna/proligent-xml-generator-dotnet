@@ -28,10 +28,6 @@
       "matchManagers": ["nuget"],
       "matchUpdateTypes": ["minor", "patch"],
       "automerge": true
-    },
-    {
-      "matchManagers": ["github-actions"],
-      "groupName": "github actions"
     }
   ]
 }
